@@ -13,13 +13,20 @@ This project is licensed under the **WelcomeAds Custom License**.
 
 For full details, refer to the [LICENSE](LICENSE) file.
 
-## How to Use
+## Installation
+
+### Requirement
+1.[PlayerHeads](https://www.curseforge.com/minecraft/bukkit-plugins/player-heads) **(Required)**
+2.[ItemsAdder](https://www.spigotmc.org/resources/%E2%9C%A8itemsadder%E2%AD%90emotes-mobs-items-armors-hud-gui-emojis-blocks-wings-hats-liquids.73355/), [Oraxen](https://www.spigotmc.org/resources/%E2%98%84%EF%B8%8F-oraxen-custom-items-blocks-emotes-furniture-resourcepack-and-gui-1-18-1-21-4.72448/), [NexO](https://mcmodels.net/products/13172/nexo?srsltid=AfmBOooeUFusiEq8tfccU_E5sGRq8vCtXQFUn5MNkKESvfpLZThkB0O0) (Optional)
+3.[PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (Optional)
+
+### How to use
 1. Place the plugin `.jar` file in your Minecraft server's `plugins` folder.
 2. Restart or reload your server.
 3. Configure the plugin settings in the generated `config.yml` file.
-4. Install one of these plugins for easier use: **ItemsAdder**, **Oraxen**, or **NextO**. These plugins have custom emoji functions that will be used to display background colors and GUI images.
+4. Install one of these plugins for easier use: **ItemsAdder**, **Oraxen**, or **NexO**. These plugins have custom emoji functions that will be used to display background colors and GUI images.
 5. If you do not have any of the above plugins, you can still use WelcomeAds, but you will need to manually create a font texture for the background and GUI images.
-6. For users with **ItemsAdder**, example configuration files are provided. However, for **Oraxen** and **NextO**, you will need to manually convert the ItemsAdder configuration to work with your preferred plugin.
+6. For users with **ItemsAdder**, example configuration files are provided. However, for **Oraxen** and **NexO**, you will need to manually convert the ItemsAdder configuration to work with your preferred plugin.
 7. Enjoy the custom welcome screen functionality!
 
 ## Contributions
