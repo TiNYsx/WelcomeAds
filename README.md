@@ -30,8 +30,8 @@ For full details, refer to the [LICENSE](LICENSE) file.
 7. Enjoy the custom welcome screen functionality!
 
 ### Commands
-1. welcomeads open <page_name> <player>
-2. welcomeads reload
+- welcomeads open <page_name> <player_name>
+- welcomeads reload
 
 ## Contributions
 Contributions are welcome! Please submit a pull request or open an issue on the official GitHub repository.
