@@ -1,0 +1,52 @@
+info:
+  namespace: welcomeads
+font_images:
+  welcomeads_shift_48:
+    path: "shift.png"
+    y_position: -32768
+    scale_ratio: 100
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_shift_l_1014:
+    path: "shift.png"
+    y_position: -32768
+    scale_ratio: -1014
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_shift_l_1536:
+    path: "shift.png"
+    y_position: -32768
+    scale_ratio: -1536
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_page_1:
+    path: "welcome_page_1.png"
+    y_position: 7
+    scale_ratio: 256
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_page_2:
+    path: "welcome_page_2.png"
+    y_position: 7
+    scale_ratio: 256
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_page_3:
+    path: "welcome_page_3.png"
+    y_position: 7
+    scale_ratio: 256
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false
+  welcomeads_background:
+    path: "background.png"
+    y_position: 256
+    scale_ratio: 2500
+    show_in_gui: false
+    permission: welcomeads.font
+    suggest_in_command: false

@@ -14,7 +14,7 @@ inventory:
     items:
       '1':
         material: "PLAYER_HEAD"
-        slot: 49
+        slot: 48
         name: "&aPlayer Profile"
         lore:
         - "&r"
@@ -32,7 +32,7 @@ inventory:
       '1':
         material: "EMERALD_BLOCK"
         modeldata: 0
-        slot: 50
+        slot: 49
         name: "&fWelcome to the Server!"
         lore:
         - "&r"
@@ -54,7 +54,7 @@ inventory:
       '1':
         material: "DIAMOND_BLOCK"
         modeldata: 0
-        slot: 51
+        slot: 50
         name: "&fStore"
         lore:
         - "&r"
