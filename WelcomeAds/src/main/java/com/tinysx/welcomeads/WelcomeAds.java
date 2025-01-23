@@ -58,48 +58,49 @@ public class WelcomeAds extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("welcomeads")) {
-            if (args.length == 0) {
-                Player player = (Player) sender;
-                String page = getConfig().getString("joinpage");
-                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
-                return true;
-            }
-
-            if (args.length >= 3 && args[0].equalsIgnoreCase("open")) {
-                String index = args[1];
-                Player player = Bukkit.getPlayer(args[2]);
-                if (player == null) {
-                    sender.sendMessage("§7[§e!§7] §fPlayer not found.");
-                    return false;
+            if (sender.hasPermission("welcomeads.use")){
+                if (args.length == 0) {
+                    Player player = (Player) sender;
+                    String page = getConfig().getString("joinpage");
+                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+                    return true;
                 }
-
-                ConfigurationSection windows = getConfig().getConfigurationSection("inventory");
-                if (windows == null) {
-                    sender.sendMessage("§7[§e!§7] §fNo inventories configured in config.yml.");
-                    return false;
-                }
-
-                if (windows.contains(index)) {
-                    if (windows.getBoolean(index + ".enable")) {
-                        openWelcomeScreen(player, index);
-                    } else {
-                        sender.sendMessage("§7[§e!§7] §fThis welcomeads inventory is disabled.");
+                
+                if (args.length >= 3 && args[0].equalsIgnoreCase("open")) {
+                    String index = args[1];
+                    Player player = Bukkit.getPlayer(args[2]);
+                    if (player == null) {
+                        sender.sendMessage("§7[§e!§7] §fPlayer not found.");
+                        return false;
                     }
-                } else {
-                    sender.sendMessage("§7[§e!§7] §fInvalid inventory index.");
-                }
-                return true;
-            }
 
-            if (args[0].equalsIgnoreCase("reload")) {
-                if (sender.hasPermission("welcomeads.reload")) {
+                    ConfigurationSection windows = getConfig().getConfigurationSection("inventory");
+                    if (windows == null) {
+                        sender.sendMessage("§7[§e!§7] §fNo inventories configured in config.yml.");
+                        return false;
+                    }
+
+                    if (windows.contains(index)) {
+                        if (windows.getBoolean(index + ".enable")) {
+                            openWelcomeScreen(player, index);
+                        } else {
+                            sender.sendMessage("§7[§e!§7] §fThis welcomeads inventory is disabled.");
+                        }
+                    } else {
+                        sender.sendMessage("§7[§e!§7] §fInvalid inventory index.");
+                    }
+                    return true;
+                }
+
+                if (args[0].equalsIgnoreCase("reload")) {
                     reloadConfig();
                     sender.sendMessage("§7[§a!§7] §fConfiguration reloaded successfully!");
                     getLogger().info("Configuration reloaded.");
-                } else {
-                    sender.sendMessage("§7[§c!§7] §fYou do not have permission to use this command.");
+                    return true;
                 }
-                return true;
+            }
+            else {
+                sender.sendMessage("§7[§c!§7] §fYou do not have permission to use this command.");
             }
         }
         return false;

@@ -29,6 +29,10 @@ For full details, refer to the [LICENSE](LICENSE) file.
 6. For users with **ItemsAdder**, example configuration files are provided. However, for **Oraxen** and **NexO**, you will need to manually convert the ItemsAdder configuration to work with your preferred plugin.
 7. Enjoy the custom welcome screen functionality!
 
+### Commands
+1. welcomeads open <page_name> <player>
+2. welcomeads reload
+
 ## Contributions
 Contributions are welcome! Please submit a pull request or open an issue on the official GitHub repository.
 
