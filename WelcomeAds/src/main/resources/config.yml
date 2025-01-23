@@ -1,0 +1,65 @@
+joinpage: "welcome1"
+background: 
+  enable: true
+  text: "&0%img_welcomeads_shift_l_1536%&0%img_welcomeads_background%&0%img_welcomeads_shift_l_1014%"
+  stay: 0
+  fadeout: 10
+inventory:
+  'welcome1':
+    enable: true
+    title: "%img_welcomeads_page_1%"
+    open-sound: "minecraft:ui.loom.select_pattern"
+    nextpage: 'welcome2'
+    delay: 100
+    items:
+      '1':
+        material: "PLAYER_HEAD"
+        slot: 49
+        name: "&aPlayer Profile"
+        lore:
+        - "&r"
+        - "&7Name: &a%player_name%"
+        - "&fThanks for being part of our Community!"
+        commands:
+        - "[console]welcomeads open welcome2 <player>"
+  'welcome2':
+    enable: true
+    title: "%img_welcomeads_page_2%"
+    open-sound: "minecraft:ui.loom.select_pattern"
+    nextpage: 'welcome3'
+    delay: 100
+    items:
+      '1':
+        material: "EMERALD_BLOCK"
+        modeldata: 0
+        slot: 50
+        name: "&fWelcome to the Server!"
+        lore:
+        - "&r"
+        - "&aRules"
+        - "&71.&fDo not use any cheat."
+        - "&72.&fTreat every player with kindness."
+        - "&r"
+        - "&fEnjoy the server!"
+        - "&r"
+        commands:
+        - "[console]welcomeads open welcome3 <player>"
+  'welcome3':
+    enable: true
+    title: "%img_welcomeads_page_3%"
+    open-sound: "minecraft:ui.loom.select_pattern"
+    nextpage: 'welcome1'
+    delay: 100
+    items:
+      '1':
+        material: "DIAMOND_BLOCK"
+        modeldata: 0
+        slot: 51
+        name: "&fStore"
+        lore:
+        - "&r"
+        - "&fBuy item in our Store!"
+        - "&elink >> &7store.&courserver&7.com"
+        - "&r"
+        commands:
+        - "[close]"

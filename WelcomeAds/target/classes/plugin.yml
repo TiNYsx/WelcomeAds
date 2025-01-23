@@ -1,0 +1,12 @@
+api: "1.20"
+api-version: 1.20
+name: WelcomeAds
+version: 1.0-SNAPSHOT
+main: com.tinysx.welcomeads.WelcomeAds
+description: A normal ads welcome screen in minecraft with easy configuration. Supported by Erocavontic Creation
+depend: [ "PlayerHeads" ]
+softdepend: ["PlaceholderAPI"]
+commands:
+  welcomeads:
+    description: WelcomeAds command
+    usage: /welcomeads <arg-1> <arg-2> <arg-3>
