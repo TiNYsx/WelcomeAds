@@ -16,7 +16,7 @@ For full details, refer to the [LICENSE](LICENSE) file.
 ## Installation
 
 ### Requirement
-1. [PlayerHeads](https://www.curseforge.com/minecraft/bukkit-plugins/player-heads) **(Required)**
+1. [PlayerHeads](https://github.com/crashdemons/PlayerHeads/releases) **(Required)**
 2. [ItemsAdder](https://www.spigotmc.org/resources/%E2%9C%A8itemsadder%E2%AD%90emotes-mobs-items-armors-hud-gui-emojis-blocks-wings-hats-liquids.73355/), [Oraxen](https://www.spigotmc.org/resources/%E2%98%84%EF%B8%8F-oraxen-custom-items-blocks-emotes-furniture-resourcepack-and-gui-1-18-1-21-4.72448/), [NexO](https://mcmodels.net/products/13172/nexo?srsltid=AfmBOooeUFusiEq8tfccU_E5sGRq8vCtXQFUn5MNkKESvfpLZThkB0O0) (Optional)
 3. [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (Optional)
 
