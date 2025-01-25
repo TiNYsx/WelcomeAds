@@ -183,7 +183,9 @@ public class WelcomeAds extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = (Player) event.getPlayer();
         String page = getConfig().getString("joinpage");
-        Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+        if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
+            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+        }
     }
 
     @EventHandler
@@ -213,7 +215,12 @@ public class WelcomeAds extends JavaPlugin implements Listener {
                     if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {
                         cancel();
                     } else {
-                        openWelcomeScreen((Player) event.getPlayer(), nextpage);
+                        if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false){
+                            openWelcomeScreen((Player) event.getPlayer(), nextpage);
+                        }
+                        else {
+                            cancel();
+                        }
                     }
                 }
             }.runTaskTimer(this, Long.parseLong(""+delay), Long.parseLong(""+delay));
