@@ -2,11 +2,14 @@ package com.tinysx.welcomeads;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,41 +21,99 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.github.crashdemons.playerheads.api.PlayerHeads;
-import com.github.crashdemons.playerheads.api.PlayerHeadsAPI;
+import org.bukkit.util.StringUtil;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
+import net.skinsrestorer.api.SkinsRestorer;
+import net.skinsrestorer.api.SkinsRestorerProvider;
+import net.skinsrestorer.api.exception.DataRequestException;
+import net.skinsrestorer.api.property.SkinProperty;
 
-public class WelcomeAds extends JavaPlugin implements Listener {
+
+public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
+    SkinsRestorer skinsRestorerAPI;
+    String version = Bukkit.getVersion();
+    String bukkitversion = Bukkit.getBukkitVersion();
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
         if (!NBT.preloadApi()) {
             getLogger().warning("NBT-API wasn't initialized properly, disabling the plugin.");
             getPluginLoader().disablePlugin(this);
             return;
         }
 
-        if (Bukkit.getPluginManager().getPlugin("PlayerHeads") == null) {
-            getLogger().severe("PlayerHeads is not installed! Disabling WelcomeAds.");
+        if (getServer().getPluginManager().getPlugin("SkinsRestorer") == null) {
+            getLogger().severe("SkinsRestorer plugin not found! Disabling WelcomeAds.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        saveDefaultConfig();
-        getServer().getPluginManager().registerEvents(this, this);
-        getLogger().info("WelcomeAds plugin enabled!");
-    }
+        this.skinsRestorerAPI = SkinsRestorerProvider.get();
+        if (this.skinsRestorerAPI == null) {
+            getLogger().warning("SkinRestorer is not loading, Disabling WelcomeAds.");
+            getPluginLoader().disablePlugin(this);
+            return;
+        } 
 
+        getServer().getPluginManager().registerEvents(this, this);
+        getLogger().info("\u001B[0m");
+        getLogger().info("\u001B[36;1mWelcomeAds plugin \u001B[32;1menabled!\u001B[0m");
+        getLogger().info("\u001B[37;1mMade with love, by \u001B[32;1mTiNYsx\u001B[0m");
+        getLogger().info("\u001B[0m");
+    }
 
     @Override
     public void onDisable() {
         getLogger().info("WelcomeAds plugin disabled!");
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        if (label.equalsIgnoreCase("welcomeads")) {
+            switch (args.length) {
+                case 1 -> {
+                    List<String> completions = new ArrayList<>();
+                    completions.add("open");
+                    completions.add("reload");
+                    return StringUtil.copyPartialMatches(args[0], completions, new ArrayList<>());
+                }
+                case 2 -> {
+                    if (args[0].equalsIgnoreCase("open")) {
+                        List<String> completions = new ArrayList<>();
+                        ConfigurationSection windows = getConfig().getConfigurationSection("inventory");
+                        if (windows != null) {
+                            for (String key : windows.getKeys(false)) {
+                                completions.add(key);
+                            }
+                        }
+                        return StringUtil.copyPartialMatches(args[1], completions, new ArrayList<>());
+                    }
+                }
+                case 3 -> {
+                    if (args[0].equalsIgnoreCase("open")) {
+                        List<String> completions = new ArrayList<>();
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            completions.add(player.getName());
+                        }
+                        return StringUtil.copyPartialMatches(args[2], completions, new ArrayList<>());
+                    }
+                }
+                default -> {
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -140,8 +201,27 @@ public class WelcomeAds extends JavaPlugin implements Listener {
                 }
                 ItemStack item = new ItemStack(Material.getMaterial(itemMaterial));
                 if (Material.getMaterial(itemMaterial) == Material.PLAYER_HEAD) {
-                    PlayerHeadsAPI api = PlayerHeads.getApiInstance();
-                    item = api.getHeadItem(headOwner, 1, true);
+                    SkullMeta meta = (SkullMeta) item.getItemMeta();
+                    SkinProperty skinProperty;
+                    try {
+                        skinProperty = this.skinsRestorerAPI.getSkinStorage().getPlayerSkin(headOwner, false).orElse(null).getSkinProperty();
+                        UUID skinUUID = this.skinsRestorerAPI.getSkinStorage().getPlayerSkin(headOwner, false).orElse(null).getUniqueId();
+                        String textures = skinProperty.getValue();
+                        PlayerProfile playerProfile = Bukkit.getServer().createPlayerProfile(skinUUID, headOwner);
+                        meta.setOwnerProfile(playerProfile);
+                        item.setItemMeta(meta);
+
+                        NBT.modifyComponents(item, nbt -> {
+                            ReadWriteNBT profileNbt = nbt.getOrCreateCompound("minecraft:profile");
+                            profileNbt.setUUID("id", skinUUID);
+                            ReadWriteNBT propertiesNbt = profileNbt.getCompoundList("properties").addCompound();
+                            propertiesNbt.setString("name", "textures");
+                            propertiesNbt.setString("value", textures);
+                        });
+                        
+                    } catch (DataRequestException ex) {
+                    }
+                    
                     ItemMeta skullmeta = item.getItemMeta();
                     if (skullmeta != null) {
                         skullmeta.setCustomModelData(itemModelData);
@@ -251,7 +331,7 @@ public class WelcomeAds extends JavaPlugin implements Listener {
         }
 
         if (event.getClickedInventory() == event.getView().getTopInventory()) {
-            Boolean isWelcomeAds = NBT.get(event.getCurrentItem(), nbt -> (Boolean) nbt.getBoolean("welcomeads"));
+            Boolean isWelcomeAds = NBT.get(event.getCurrentItem(), (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("welcomeads"));
             if (isWelcomeAds == null || !isWelcomeAds) return;
             String adsId = NBT.get(event.getCurrentItem(), nbt -> (String) nbt.getString("adsid"));
             if (adsId == null) return;

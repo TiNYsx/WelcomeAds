@@ -6,7 +6,7 @@
 
     <groupId>com.tinysx.welcomeads</groupId>
     <artifactId>WelcomeAds</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
@@ -17,11 +17,25 @@
     </properties>
 
     <dependencies>
+        <!-- Mojang Authlib API -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+            <version>3.11.50</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- SkinsRestorer API -->
+        <dependency>
+            <groupId>net.skinsrestorer</groupId>
+            <artifactId>skinsrestorer-api</artifactId>
+            <version>15.5.2</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Spigot API (Provided Scope) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.1-R0.1-SNAPSHOT</version>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- Item-NBT-API -->
@@ -29,13 +43,6 @@
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api</artifactId>
             <version>2.14.1</version>
-        </dependency>
-        <!-- PlayerHeads (Provided Scope) -->
-        <dependency>
-            <groupId>com.github.crashdemons</groupId>
-            <artifactId>playerheads</artifactId>
-            <version>5.21.1</version>
-            <scope>provided</scope>
         </dependency>
         <!-- PlaceholderAPI (Optional) -->
         <dependency>
@@ -45,6 +52,16 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>24.0.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <repositories>
         <!-- CodeMC Repository -->
@@ -61,6 +78,11 @@
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/releases/</url>
+        </repository>
+        <!-- Mojang Library -->
+        <repository>
+            <id>mojang</id>
+            <url>https://libraries.minecraft.net/</url>
         </repository>
     </repositories>
 
@@ -91,7 +113,7 @@
                     <relocations>
                         <relocation>
                             <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                            <shadedPattern>com.tinysx.welcomeads.nbtapi</shadedPattern>
+                            <shadedPattern>com.tinysx.welcomeads.shaded.nbtapi</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
