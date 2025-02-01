@@ -3,9 +3,6 @@ package com.tinysx.welcomeads;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
-
-import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,7 +11,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
@@ -147,37 +143,22 @@ class Screen {
         return item;
     }
 
-    public void openTo(Player player, @Nullable boolean isClear) {
+    public void openTo(Player player, boolean isClear) {
         if (this.itemsection == null) {
             player.sendMessage("§7[§e!§7] §fThe config for the index §e" + index + "§f is empty, please read the document.");
         }
         else {
 
             if (isClear) {
+                // todo : load player's inventory to InventoryStorage
                 InventoryStorage.createInventoryStorage(player);
                 InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
                 if (storage != null) {
-                    storage.getInventory().setContents(((PlayerInventory) player.getInventory()).getContents());
-
-                    Bukkit.getLogger().log(Level.INFO, "------------------------------------- 1");
-                    for (ItemStack item : storage.getInventory().getContents()) {
-                        if (item != null) {
-                            Bukkit.getLogger().log(Level.INFO, "Item: {0}", item);
-                        }
-                    }
-
-                    player.getInventory().clear();
-                    
-                    Bukkit.getLogger().log(Level.INFO, "------------------------------------- 2");
-                    for (ItemStack item : storage.getInventory().getContents()) {
-                        if (item != null) {
-                            Bukkit.getLogger().log(Level.INFO, "Item: {0}", item);
-                        }
-                    }
+                    storage.loadInventoryStorage(player);
+                    player.openInventory(getScreenInventory(player));
                 }
             }
 
-            player.openInventory(getScreenInventory(player));
         }
     }
 }

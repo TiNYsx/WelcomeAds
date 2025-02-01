@@ -18,6 +18,18 @@ public final class InventoryStorage {
         this.player = player;
     }
 
+    // load player inventory to InventoryStorage
+    public void loadInventoryStorage(Player player) {
+        this.inventory.setContents(player.getInventory().getExtraContents());
+        addInventoryStorage(this);
+    }
+
+    // unload InvetoryStorage to player inventory
+    public void unloadInventoryStorage(Player player) {
+        player.getInventory().setContents(this.inventory.getContents());
+        removeInventoryStorage(player);
+    }
+
     public static InventoryStorage createInventoryStorage(Player player) {
         InventoryStorage storage = new InventoryStorage(player);
         addInventoryStorage(storage);

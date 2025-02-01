@@ -17,7 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
@@ -114,7 +113,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                 if (args.length == 0) {
                     Player player = (Player) sender;
                     String page = getConfig().getString("joinpage");
-                    Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+                    new Screen(page, player).openTo(player, true);
                     return true;
                 }
                 
@@ -163,13 +162,16 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
         Player player = (Player) event.getPlayer();
 
         if (InventoryStorage.isHaveInventoryStorage(player)) {
+            // todo: unload InventoryStorage to player inventory // reason: player leaved without unload inventory
             InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
-            player.getInventory().setContents(storage.getInventory().getContents());
+            storage.unloadInventoryStorage(player);
         }
 
         String page = getConfig().getString("joinpage");
         if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+            // Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
+            // todo: open welcome page to player
+            new Screen(page, player).openTo(player, true);
         }
     }
 
@@ -223,13 +225,8 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, background != null ? background : "")), "", 0, stay, out);
                 InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
                 if (storage != null) {
-                    Bukkit.getLogger().log(Level.INFO, "- {0} {1}", new Object[]{storage.getPlayer(), storage.getInventory().getContents()});
 
-                    for (ItemStack item : storage.getInventory().getContents()) {
-                        Bukkit.getLogger().log(Level.INFO, "- {0}", new Object[]{item});
-                    }
-
-                    event.getPlayer().getInventory().setContents(storage.getInventory().getContents());
+                    // todo: unload InventoryStorage to player inventory
                 }
                 else {
                     Bukkit.getLogger().log(Level.INFO, "InventoryStorage is null");
