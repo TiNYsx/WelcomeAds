@@ -2,11 +2,10 @@ package com.tinysx.welcomeads;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -18,30 +17,22 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.skinsrestorer.api.SkinsRestorer;
 import net.skinsrestorer.api.SkinsRestorerProvider;
-import net.skinsrestorer.api.exception.DataRequestException;
-import net.skinsrestorer.api.property.SkinProperty;
 
 
 public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
+
     SkinsRestorer skinsRestorerAPI;
-    String version = Bukkit.getVersion();
-    String bukkitversion = Bukkit.getBukkitVersion();
 
     @Override
     public void onEnable() {
@@ -143,7 +134,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
 
                     if (windows.contains(index)) {
                         if (windows.getBoolean(index + ".enable")) {
-                            openWelcomeScreen(player, index);
+                            new Screen(index, player).openTo(player, true);
                         } else {
                             sender.sendMessage("§7[§e!§7] §fThis welcomeads inventory is disabled.");
                         }
@@ -167,101 +158,15 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
         return false;
     }
 
-    private void openWelcomeScreen(Player player, String index) {
-        ConfigurationSection itemsConfig = getConfig().getConfigurationSection("inventory." + index + ".items");
-        String title = getConfig().getString("inventory." + index + ".title");
-        String background = getConfig().getString("background.text");
-        String welcometitle = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, "&f" + background + "&f" + title));
-        Inventory welcomeInventory = Bukkit.createInventory(new WelcomeInventoryHolder(index), 54, welcometitle);
-        
-        if (itemsConfig == null) {
-            player.sendMessage("§7[§e!§7] §fThe config for the index §e" + index + "§f is empty, please read the document.");
-        }
-        else {
-            for (String key : itemsConfig.getKeys(false)) {
-                String itemName = itemsConfig.getString(key + ".name");
-                String itemMaterial = itemsConfig.getString(key + ".material");
-                int itemModelData = itemsConfig.getInt(key + ".modeldata");
-                int itemIndex = itemsConfig.getInt(key + ".slot");
-                String headOwner = player.getName();
-                List<String> itemLore = itemsConfig.getStringList(key + ".lore");
-                if (itemMaterial == null || itemName == null){
-                    continue;
-                }
-                if (itemLore.isEmpty()) {
-                    itemLore = new ArrayList<>();
-                }
-                if (itemMaterial.contains(":")){
-                    String material = itemMaterial.split(":")[0];
-                    headOwner = itemMaterial.split(":")[1];
-                    if (headOwner == null) {
-                        headOwner = player.getName();
-                    }
-                    itemMaterial = material;
-                }
-                ItemStack item = new ItemStack(Material.getMaterial(itemMaterial));
-                if (Material.getMaterial(itemMaterial) == Material.PLAYER_HEAD) {
-                    SkullMeta meta = (SkullMeta) item.getItemMeta();
-                    SkinProperty skinProperty;
-                    try {
-                        skinProperty = this.skinsRestorerAPI.getSkinStorage().getPlayerSkin(headOwner, false).orElse(null).getSkinProperty();
-                        UUID skinUUID = this.skinsRestorerAPI.getSkinStorage().getPlayerSkin(headOwner, false).orElse(null).getUniqueId();
-                        String textures = skinProperty.getValue();
-                        PlayerProfile playerProfile = Bukkit.getServer().createPlayerProfile(skinUUID, headOwner);
-                        meta.setOwnerProfile(playerProfile);
-                        item.setItemMeta(meta);
-
-                        NBT.modifyComponents(item, nbt -> {
-                            ReadWriteNBT profileNbt = nbt.getOrCreateCompound("minecraft:profile");
-                            profileNbt.setUUID("id", skinUUID);
-                            ReadWriteNBT propertiesNbt = profileNbt.getCompoundList("properties").addCompound();
-                            propertiesNbt.setString("name", "textures");
-                            propertiesNbt.setString("value", textures);
-                        });
-                        
-                    } catch (DataRequestException ex) {
-                    }
-                    
-                    ItemMeta skullmeta = item.getItemMeta();
-                    if (skullmeta != null) {
-                        skullmeta.setCustomModelData(itemModelData);
-                        skullmeta.setDisplayName(PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemName)));
-                        for (int i = 0; i < itemLore.size(); i++){
-                            itemLore.set(i, PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemLore.get(i))));
-                        }
-                        skullmeta.setLore(itemLore);
-                        item.setItemMeta(skullmeta);
-                    }
-                }
-                else{
-                    ItemMeta meta = item.getItemMeta();
-                    if (meta != null){
-                        if (itemModelData >= 0){
-                            meta.setCustomModelData(itemModelData);
-                            item.setItemMeta(meta);
-                            meta.setDisplayName(PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemName)));
-                            for (int i = 0; i < itemLore.size(); i++){
-                                itemLore.set(i, PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemLore.get(i))));
-                            }
-                            meta.setLore(itemLore);
-                            item.setItemMeta(meta);
-                        }
-                    }   
-                }
-                NBT.modify(item, nbt -> {
-                    nbt.setString("adsid", index);
-                    nbt.setBoolean("welcomeads", true);
-                });
-
-                welcomeInventory.setItem(itemIndex, item);
-            }
-            player.openInventory(welcomeInventory);
-        }
-    }
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = (Player) event.getPlayer();
+
+        if (InventoryStorage.isHaveInventoryStorage(player)) {
+            InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
+            player.getInventory().setContents(storage.getInventory().getContents());
+        }
+
         String page = getConfig().getString("joinpage");
         if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
@@ -296,7 +201,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                         cancel();
                     } else {
                         if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false){
-                            openWelcomeScreen((Player) event.getPlayer(), nextpage);
+                            new Screen(nextpage, (Player) event.getPlayer()).openTo((Player) event.getPlayer(), true);
                         }
                         else {
                             cancel();
@@ -316,6 +221,20 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                 int stay = getConfig().getInt("background.stay");
                 int out = getConfig().getInt("background.fadeout");
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, background != null ? background : "")), "", 0, stay, out);
+                InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
+                if (storage != null) {
+                    Bukkit.getLogger().log(Level.INFO, "- {0} {1}", new Object[]{storage.getPlayer(), storage.getInventory().getContents()});
+
+                    for (ItemStack item : storage.getInventory().getContents()) {
+                        Bukkit.getLogger().log(Level.INFO, "- {0}", new Object[]{item});
+                    }
+
+                    event.getPlayer().getInventory().setContents(storage.getInventory().getContents());
+                }
+                else {
+                    Bukkit.getLogger().log(Level.INFO, "InventoryStorage is null");
+                }
+                
             }
         }
     }
@@ -324,7 +243,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null) return;
 
-        if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
+        if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
             if (event.getClickedInventory() == event.getView().getBottomInventory()) {
                 event.setCancelled(true);
             }
