@@ -28,11 +28,11 @@ public final class InventoryStorage {
             if (n <= 36) {
                 if (elem != null) {
                     this.inventory.setItem(n, elem.clone());
+                    player.getInventory().clear(n);
                 }
                 n++;
             }
         }
-        player.getInventory().clear();
     }
 
     // unload InvetoryStorage to player inventory
