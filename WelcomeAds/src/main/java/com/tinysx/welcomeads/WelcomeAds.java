@@ -3,7 +3,6 @@ package com.tinysx.welcomeads;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -27,7 +26,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.skinsrestorer.api.SkinsRestorer;
 import net.skinsrestorer.api.SkinsRestorerProvider;
-
 
 public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
 
@@ -54,7 +52,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
             getLogger().warning("SkinRestorer is not loading, Disabling WelcomeAds.");
             getPluginLoader().disablePlugin(this);
             return;
-        } 
+        }
 
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("\u001B[0m");
@@ -109,14 +107,14 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("welcomeads")) {
-            if (sender.hasPermission("welcomeads.use")){
+            if (sender.hasPermission("welcomeads.use")) {
                 if (args.length == 0) {
                     Player player = (Player) sender;
                     String page = getConfig().getString("joinpage");
-                    new Screen(page, player).openTo(player, true);
+                    new Screen(page, player).openTo(player);
                     return true;
                 }
-                
+
                 if (args.length >= 3 && args[0].equalsIgnoreCase("open")) {
                     String index = args[1];
                     Player player = Bukkit.getPlayer(args[2]);
@@ -133,7 +131,10 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
 
                     if (windows.contains(index)) {
                         if (windows.getBoolean(index + ".enable")) {
-                            new Screen(index, player).openTo(player, true);
+                            if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
+                                player.closeInventory();                                
+                            }
+                            new Screen(index, player).openTo(player);
                         } else {
                             sender.sendMessage("§7[§e!§7] §fThis welcomeads inventory is disabled.");
                         }
@@ -149,8 +150,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                     getLogger().info("Configuration reloaded.");
                     return true;
                 }
-            }
-            else {
+            } else {
                 sender.sendMessage("§7[§c!§7] §fYou do not have permission to use this command.");
             }
         }
@@ -165,13 +165,14 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
             // todo: unload InventoryStorage to player inventory // reason: player leaved without unload inventory
             InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
             storage.unloadInventoryStorage(player);
+            InventoryStorage.removeInventoryStorage(player);
         }
 
         String page = getConfig().getString("joinpage");
         if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
             // Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "welcomeads open " + page + " " + player.getName());
             // todo: open welcome page to player
-            new Screen(page, player).openTo(player, true);
+            new Screen(page, player).openTo(player);
         }
     }
 
@@ -186,15 +187,17 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                 player.playSound(player, opensound, 1.0f, 1.0f);
             }
 
-            if (getConfig().getBoolean("background.enable") == true){
+            if (getConfig().getBoolean("background.enable") == true) {
                 String background = getConfig().getString("background.text");
                 int stay = getConfig().getInt("background.stay");
                 int out = getConfig().getInt("background.fadeout");
-                player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, background != null ? background : "")), "", 0, stay+1000, out);
+                player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, background != null ? background : "")), "", 0, stay + 1000, out);
             }
 
             int delay = getConfig().getInt("inventory." + adsId + ".delay");
-            if (nextpage == null) return;
+            if (nextpage == null) {
+                return;
+            }
 
             new BukkitRunnable() {
                 @Override
@@ -202,43 +205,42 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                     if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {
                         cancel();
                     } else {
-                        if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false){
-                            new Screen(nextpage, (Player) event.getPlayer()).openTo((Player) event.getPlayer(), true);
-                        }
-                        else {
+                        if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false) {
+                            event.getPlayer().closeInventory();
+                            new Screen(nextpage, (Player) event.getPlayer()).openTo((Player) event.getPlayer());
+                        } else {
                             cancel();
                         }
                     }
                 }
-            }.runTaskTimer(this, Long.parseLong(""+delay), Long.parseLong(""+delay));
+            }.runTaskTimer(this, Long.parseLong("" + delay), Long.parseLong("" + delay));
         }
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
+        if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
             Player player = (Player) event.getPlayer();
-            if (getConfig().getBoolean("background.enable") == true){
+            if (getConfig().getBoolean("background.enable") == true) {
                 String background = getConfig().getString("background.text");
                 int stay = getConfig().getInt("background.stay");
                 int out = getConfig().getInt("background.fadeout");
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, background != null ? background : "")), "", 0, stay, out);
                 InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
                 if (storage != null) {
-
                     // todo: unload InventoryStorage to player inventory
+                    storage.unloadInventoryStorage(player);
+                    InventoryStorage.removeInventoryStorage(player);
                 }
-                else {
-                    Bukkit.getLogger().log(Level.INFO, "InventoryStorage is null");
-                }
-                
             }
         }
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getCurrentItem() == null) return;
+        if (event.getCurrentItem() == null) {
+            return;
+        }
 
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
             if (event.getClickedInventory() == event.getView().getBottomInventory()) {
@@ -248,38 +250,43 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
 
         if (event.getClickedInventory() == event.getView().getTopInventory()) {
             Boolean isWelcomeAds = NBT.get(event.getCurrentItem(), (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("welcomeads"));
-            if (isWelcomeAds == null || !isWelcomeAds) return;
+            if (isWelcomeAds == null || !isWelcomeAds) {
+                return;
+            }
             String adsId = NBT.get(event.getCurrentItem(), nbt -> (String) nbt.getString("adsid"));
-            if (adsId == null) return;
+            if (adsId == null) {
+                return;
+            }
             if (isWelcomeAds == true) {
                 int slotIndex = event.getSlot();
                 String foundIndex = null;
                 ConfigurationSection itemsConfig = getConfig().getConfigurationSection("inventory." + adsId + ".items");
-                if (itemsConfig == null) return;
-                for (String key : itemsConfig.getKeys(false)){
-                    if (itemsConfig.getInt(key + ".slot") == slotIndex){
+                if (itemsConfig == null) {
+                    return;
+                }
+                for (String key : itemsConfig.getKeys(false)) {
+                    if (itemsConfig.getInt(key + ".slot") == slotIndex) {
                         foundIndex = key;
                     }
                 }
-                if (foundIndex == null) return;
+                if (foundIndex == null) {
+                    return;
+                }
                 event.setCancelled(true);
                 List<String> cmds = getConfig().getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
                 Player player = (Player) event.getWhoClicked();
                 if (!cmds.isEmpty()) {
-                    for (String key : cmds){
+                    for (String key : cmds) {
                         key = key.replace("<player>", player.getName());
                         if (key.contains("[console]")) {
                             String cmdValue = key.replace("[console]", "");
                             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmdValue);
-                        }
-                        else if (key.contains("[player]")) {
+                        } else if (key.contains("[player]")) {
                             String cmdValue = key.replace("[player]", "");
-                            player.chat("/"+cmdValue);
-                        }
-                        else if (key.contains("[close]")) {
+                            player.chat("/" + cmdValue);
+                        } else if (key.contains("[close]")) {
                             player.closeInventory();
-                        }
-                        else if (key.contains("[sound]")) {
+                        } else if (key.contains("[sound]")) {
                             String sound = key.replace("[sound]", "");
                             player.playSound(player, sound, 1.0f, 1.0f);
                         }
@@ -287,6 +294,6 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                 }
             }
         }
-        
+
     }
 }

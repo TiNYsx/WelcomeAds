@@ -24,6 +24,7 @@ import net.skinsrestorer.api.exception.DataRequestException;
 import net.skinsrestorer.api.property.SkinProperty;
 
 class Screen {
+
     private final WelcomeAds plugin = WelcomeAds.getPlugin(WelcomeAds.class);
     SkinsRestorer skinsRestorerAPI;
     private final Inventory screenInventory;
@@ -105,12 +106,12 @@ class Screen {
                     propertiesNbt.setString("name", "textures");
                     propertiesNbt.setString("value", textures);
                 });
-                
+
                 ItemMeta skullmeta = item.getItemMeta();
                 if (skullmeta != null) {
                     skullmeta.setCustomModelData(itemModelData);
                     skullmeta.setDisplayName(PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemName)));
-                    for (int i = 0; i < itemLore.size(); i++){
+                    for (int i = 0; i < itemLore.size(); i++) {
                         itemLore.set(i, PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemLore.get(i))));
                     }
                     skullmeta.setLore(itemLore);
@@ -118,47 +119,43 @@ class Screen {
                 }
             } catch (DataRequestException ex) {
             }
-        }
-        else{
+        } else {
             ItemMeta meta = item.getItemMeta();
-            if (meta != null){
-                if (itemModelData >= 0){
+            if (meta != null) {
+                if (itemModelData >= 0) {
                     meta.setCustomModelData(itemModelData);
                     item.setItemMeta(meta);
                     meta.setDisplayName(PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemName)));
-                    for (int i = 0; i < itemLore.size(); i++){
+                    for (int i = 0; i < itemLore.size(); i++) {
                         itemLore.set(i, PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', itemLore.get(i))));
                     }
                     meta.setLore(itemLore);
                     item.setItemMeta(meta);
                 }
-            }   
+            }
         }
-
         NBT.modify(item, nbt -> {
             nbt.setString("adsid", index);
             nbt.setBoolean("welcomeads", true);
         });
-
         return item;
     }
 
-    public void openTo(Player player, boolean isClear) {
+    public void openTo(Player player) {
         if (this.itemsection == null) {
             player.sendMessage("§7[§e!§7] §fThe config for the index §e" + index + "§f is empty, please read the document.");
-        }
+        } 
         else {
-
-            if (isClear) {
-                // todo : load player's inventory to InventoryStorage
+            // todo : load player's inventory to InventoryStorage
+            InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
+            
+            if (storage == null) {
                 InventoryStorage.createInventoryStorage(player);
-                InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
-                if (storage != null) {
-                    storage.loadInventoryStorage(player);
-                    player.openInventory(getScreenInventory(player));
-                }
+                storage = InventoryStorage.getInventoryStorage(player);
             }
+            storage.loadInventoryStorage(player);
 
+            player.openInventory(getScreenInventory(player));   
         }
     }
 }

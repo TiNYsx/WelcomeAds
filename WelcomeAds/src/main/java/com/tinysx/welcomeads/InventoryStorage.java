@@ -6,28 +6,38 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public final class InventoryStorage {
+
     private final Player player;
     private final Inventory inventory;
     static List<InventoryStorage> inventoryStorages = new ArrayList<>();
 
     public InventoryStorage(Player player) {
-        this.inventory = Bukkit.createInventory(player, 54);
-        this.inventory.setContents(player.getInventory().getContents());
+        this.inventory = Bukkit.createInventory(player, 36);
         this.player = player;
+        loadInventoryStorage(player);
+        addInventoryStorage(this);
     }
 
     // load player inventory to InventoryStorage
     public void loadInventoryStorage(Player player) {
-        this.inventory.setContents(player.getInventory().getExtraContents());
-        addInventoryStorage(this);
+        int n = 0;
+        for (ItemStack elem : player.getInventory().getStorageContents()) {
+            if (n <= 36) {
+                if (elem != null) {
+                    this.inventory.setItem(n, elem.clone());
+                }
+                n++;
+            }
+        }
+        player.getInventory().clear();
     }
 
     // unload InvetoryStorage to player inventory
     public void unloadInventoryStorage(Player player) {
-        player.getInventory().setContents(this.inventory.getContents());
-        removeInventoryStorage(player);
+        player.getInventory().setStorageContents(this.inventory.getContents());
     }
 
     public static InventoryStorage createInventoryStorage(Player player) {
