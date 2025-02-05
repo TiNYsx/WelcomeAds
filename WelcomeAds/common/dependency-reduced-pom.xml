@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>welcomeads</artifactId>
+    <groupId>com.tinysx</groupId>
+    <version>1.2</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tinysx.welcomeads</groupId>
-  <artifactId>WelcomeAds</artifactId>
+  <artifactId>common</artifactId>
   <name>WelcomeAds</name>
   <version>1.2</version>
   <description>A custom welcome screen plugin for Minecraft.</description>
   <url>https://www.spigotmc.org/members/jirwat.457182/</url>
   <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -40,10 +50,6 @@
     <repository>
       <id>codemc-repo</id>
       <url>https://repo.codemc.io/repository/maven-public/</url>
-    </repository>
-    <repository>
-      <id>velocity</id>
-      <url>https://nexus.velocitypowered.com/repository/maven-public/</url>
     </repository>
     <repository>
       <id>jitpack.io</id>
@@ -81,12 +87,6 @@
       <groupId>me.clip</groupId>
       <artifactId>placeholderapi</artifactId>
       <version>2.11.6</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.velocitypowered</groupId>
-      <artifactId>velocity-api</artifactId>
-      <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
