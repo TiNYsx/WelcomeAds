@@ -5,17 +5,23 @@ import org.bukkit.inventory.InventoryHolder;
 
 public class WelcomeInventoryHolder implements InventoryHolder {
     private final String identifier;
+    private final Screen screen;
 
-    public WelcomeInventoryHolder(String identifier) {
-        this.identifier = identifier;
+    public WelcomeInventoryHolder(Screen screen) {
+        this.identifier = screen.getIndex();
+        this.screen = screen;
     }
 
     public String getIdentifier() {
-        return identifier;
+        return this.identifier;
     }
 
     @Override
     public Inventory getInventory() {
-        return null; // Not used for this purpose
+        return this.screen.getScreenInventory(null);
+    }
+
+    public Screen getScreen() {
+        return this.screen;
     }
 }
