@@ -35,12 +35,15 @@ public final class Screen {
     public Integer backgroundStay = 0;
     public Integer backgroundFadeout = 0;
     public ConfigurationSection itemsection;
+    private final Config config;
     private final WelcomeInventoryHolder holder;
     private final Plugin plugin;
+    
 
     public Screen(String index, Player player, Plugin plugin) {
         this.index = index;
         this.plugin = plugin;
+        this.config = new Config(this.plugin);
         if (this.plugin.getConfig().getBoolean("inventory." + index + ".background.enable") == true) {
             String bg = this.plugin.getConfig().getString("inventory." + index + ".background.text");
             if (bg == null) {this.background = this.plugin.getConfig().getString("background.text");}
@@ -169,16 +172,24 @@ public final class Screen {
 
     public void openTo(Player player) {
         if (this.itemsection == null) {
-            player.sendMessage("§7[§e!§7] §fThe config for the index §e" + index + "§f is empty, please read the document.");
+            player.sendMessage(this.config.loadLang("screen-config-none").replace("<index>", this.index));
         } 
         else {
-            InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
-            if (storage == null) {
-                InventoryStorage.createInventoryStorage(player);
-                storage = InventoryStorage.getInventoryStorage(player);
+
+            String perm = this.plugin.getConfig().getString("inventory." + this.index + "permission");
+            if (perm == null) {perm = "welcomeads.open."+this.index;}
+            if (player.hasPermission(perm)) {
+                InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
+                if (storage == null) {
+                    InventoryStorage.createInventoryStorage(player);
+                    storage = InventoryStorage.getInventoryStorage(player);
+                }
+                storage.loadInventoryStorage(player);
+                player.openInventory(getScreenInventory(player));   
             }
-            storage.loadInventoryStorage(player);
-            player.openInventory(getScreenInventory(player));   
+            else {
+                player.sendMessage(this.config.loadLang("cmd-perm-none"));
+            }
         }
     }
 }

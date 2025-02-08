@@ -1,5 +1,6 @@
 package com.tinysx.welcomeads.bukkit;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
@@ -24,6 +26,7 @@ import org.bukkit.util.StringUtil;
 import com.tinysx.welcomeads.InventoryStorage;
 import com.tinysx.welcomeads.Screen;
 import com.tinysx.welcomeads.WelcomeInventoryHolder;
+import com.tinysx.welcomeads.Config;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
@@ -35,10 +38,14 @@ import net.skinsrestorer.api.SkinsRestorerProvider;
 public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
     WelcomeAds plugin = this;
     SkinsRestorer skinsRestorerAPI;
+    Config config;
     
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        saveResource("lang.yml", false);
+        this.config = new Config(this.plugin);
+        this.config.reload();
         if (!NBT.preloadApi()) {
             getLogger().warning("NBT-API wasn't initialized properly, disabling the plugin.");
             getPluginLoader().disablePlugin(this.plugin);
@@ -120,12 +127,12 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                     String index = args[1];
                     Player player = Bukkit.getPlayer(args[2]);
                     if (player == null) {
-                        sender.sendMessage("§7[§e!§7] §fPlayer not found.");
+                        sender.sendMessage(config.loadLang("cmd-inv-playernotfound"));
                         return false;
                     }
                     ConfigurationSection windows = getConfig().getConfigurationSection("inventory");
                     if (windows == null) {
-                        sender.sendMessage("§7[§e!§7] §fNo inventories configured in config.yml.");
+                        sender.sendMessage(config.loadLang("cmd-inv-none"));
                         return false;
                     }
                     if (windows.contains(index)) {
@@ -135,21 +142,26 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
                             }
                             new Screen(index, player, this.plugin).openTo(player);
                         } else {
-                            sender.sendMessage("§7[§e!§7] §fThis welcomeads inventory is disabled.");
+                            sender.sendMessage(config.loadLang("cmd-inv-disable"));
                         }
                     } else {
-                        sender.sendMessage("§7[§e!§7] §fInvalid inventory index.");
+                        sender.sendMessage(config.loadLang("cmd-inv-invalidindex"));
                     }
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
-                    reloadConfig();
-                    sender.sendMessage("§7[§a!§7] §fConfiguration reloaded successfully!");
-                    getLogger().info("Configuration reloaded.");
-                    return true;
+                    String reloadPerm = getConfig().getString("permission");
+                    if (reloadPerm == null) {reloadPerm = "welcomeads.reload";}
+                    if (sender.hasPermission(reloadPerm)) {
+                        reloadConfig();
+                        this.config.reload();
+                        sender.sendMessage(config.loadLang("cmd-pl-reload"));
+                        getLogger().info(config.loadLang("cmd-pl-reload"));
+                        return true;
+                    }
                 }
             } else {
-                sender.sendMessage("§7[§c!§7] §fYou do not have permission to use this command.");
+                sender.sendMessage(config.loadLang("cmd-perm-none"));
             }
         }
         return false;
@@ -163,9 +175,26 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
             storage.unloadInventoryStorage(player);
             InventoryStorage.removeInventoryStorage(player);
         }
-        String page = getConfig().getString("joinpage");
-        if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
-            new Screen(page, player, this.plugin).openTo(player);
+        String loadtype = getConfig().getString("loadtype");
+        if (loadtype != null && (loadtype.equalsIgnoreCase("onjoin") || loadtype.equalsIgnoreCase("both"))) {
+            String page = getConfig().getString("joinpage");
+            if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
+                new Screen(page, player, this.plugin).openTo(player);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onResourcepackLoaded(PlayerResourcePackStatusEvent event) {
+        if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
+            Player player = (Player) event.getPlayer();
+            String loadtype = getConfig().getString("loadtype");
+            if (loadtype != null && (loadtype.equalsIgnoreCase("onresourcepack") || loadtype.equalsIgnoreCase("both"))) {
+                String page = getConfig().getString("joinpage");
+                if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
+                    new Screen(page, player, this.plugin).openTo(player);
+                }
+            }
         }
     }
 
@@ -174,10 +203,7 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
             Player player = (Player) event.getPlayer();
             String adsId = holder.getIdentifier();
-            Screen screen = holder.getScreen();
-
-            if (holder != screen.getHolder()) {Bukkit.getLogger().warning("The holder is not the same");}
-            
+            Screen screen = holder.getScreen();            
             String nextpage = getConfig().getString("inventory." + adsId + ".nextpage");
             String opensound = getConfig().getString("inventory." + adsId + ".open-sound");
             int delay = getConfig().getInt("inventory." + adsId + ".delay");

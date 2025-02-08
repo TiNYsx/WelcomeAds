@@ -1,0 +1,15 @@
+
+# ------------------------------ WelcomeAds by TiNYsx ------------------------------
+#
+#                                  Language Setting                                  
+#
+# ----------------------------------------------------------------------------------
+
+cmd-inv-playernotfound: "&7[&e!&7] &fPlayer not found."
+cmd-inv-none: "§7[§e!§7] §fNo inventories configured in config.yml."
+cmd-inv-disable: "§7[§e!§7] §fThis welcomeads inventory is disabled."
+cmd-inv-invalidindex: "§7[§e!§7] §fInvalid inventory index."
+cmd-pl-reload: "§7[§a!§7] §fConfiguration reloaded successfully!"
+cmd-perm-none: "§7[§c!§7] §fYou do not have permission to use this command."
+
+screen-config-none: "§7[§e!§7] §fThe config for the index §e<index> §f is empty, please read the document."

@@ -13,8 +13,11 @@
 # setting the `on join` page, you can select one of your inventory from inventory list below
 joinpage: "welcome1"
 
-# loading type, you can use "onstart" to load the `join page` after player join the server or "onresourcepack" to load the `join page` after player loaded the server's resourcepack.
-loadtype: "onstart"
+# loading type, you can use 
+# "onstart" to load the `join page` after player join the server
+# "onresourcepack" to load the `join page` after player loaded the server's resourcepack
+# "both" for both event.
+loadtype: "both"
 
 # the permission to give access to `welcomeads reload` command, normally give this to admin/owner role.
 permission: "welcomeads.reload"

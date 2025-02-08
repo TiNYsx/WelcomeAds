@@ -21,7 +21,6 @@ public final class InventoryStorage {
         addInventoryStorage(this);
     }
 
-    // load player inventory to InventoryStorage
     public void loadInventoryStorage(Player player) {
         int n = 0;
         for (ItemStack elem : player.getInventory().getStorageContents()) {
@@ -35,7 +34,6 @@ public final class InventoryStorage {
         }
     }
 
-    // unload InvetoryStorage to player inventory
     public void unloadInventoryStorage(Player player) {
         player.getInventory().setStorageContents(this.inventory.getContents());
     }
