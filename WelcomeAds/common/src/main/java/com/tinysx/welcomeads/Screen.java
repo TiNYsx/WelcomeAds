@@ -175,7 +175,9 @@ public final class Screen {
             player.sendMessage(this.config.loadLang("screen-config-none").replace("<index>", this.index));
         } 
         else {
-
+            if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder){
+                player.closeInventory();
+            }
             String perm = this.plugin.getConfig().getString("inventory." + this.index + "permission");
             if (perm == null) {perm = "welcomeads.open."+this.index;}
             if (player.hasPermission(perm)) {
