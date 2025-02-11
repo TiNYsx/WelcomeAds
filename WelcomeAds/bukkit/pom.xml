@@ -9,11 +9,11 @@
     <parent>
         <groupId>com.tinysx</groupId>
         <artifactId>welcomeads</artifactId>
-        <version>1.4</version>
+        <version>1.5</version>
     </parent>
  
     <artifactId>bukkit</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
@@ -31,11 +31,18 @@
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
+        <!-- BungeeCord API -->
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.20-R0.2</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- WelcomeAds Common Class -->
         <dependency>
             <groupId>com.tinysx</groupId>
             <artifactId>common</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
         </dependency>
         <!-- Mojang Authlib API -->
         <dependency>

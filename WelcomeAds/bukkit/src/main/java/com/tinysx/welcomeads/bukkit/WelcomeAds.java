@@ -1,6 +1,5 @@
 package com.tinysx.welcomeads.bukkit;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -23,15 +22,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
 
+import com.tinysx.welcomeads.Config;
 import com.tinysx.welcomeads.InventoryStorage;
 import com.tinysx.welcomeads.Screen;
 import com.tinysx.welcomeads.WelcomeInventoryHolder;
-import com.tinysx.welcomeads.Config;
+import com.tinysx.welcomeads.event.onScreenClose;
+import com.tinysx.welcomeads.event.onScreenOpen;
+import com.tinysx.welcomeads.utils.CommandConverter;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
-import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.skinsrestorer.api.SkinsRestorer;
 import net.skinsrestorer.api.SkinsRestorerProvider;
 
@@ -42,10 +42,8 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
     
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        saveResource("lang.yml", false);
         this.config = new Config(this.plugin);
-        this.config.reload();
+        this.config.configLoad();
         if (!NBT.preloadApi()) {
             getLogger().warning("NBT-API wasn't initialized properly, disabling the plugin.");
             getPluginLoader().disablePlugin(this.plugin);
@@ -201,88 +199,77 @@ public class WelcomeAds extends JavaPlugin implements Listener, TabCompleter {
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
-            Player player = (Player) event.getPlayer();
             String adsId = holder.getIdentifier();
-            Screen screen = holder.getScreen();            
             String nextpage = getConfig().getString("inventory." + adsId + ".nextpage");
-            String opensound = getConfig().getString("inventory." + adsId + ".open-sound");
             int delay = getConfig().getInt("inventory." + adsId + ".delay");
-            player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, screen.getBackground() != null ? screen.getBackground() : "")), "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
-            if (opensound != null) {player.playSound(player, opensound, 1.0f, 1.0f);}
-            if (nextpage == null) {return;}
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {cancel();} 
-                    else {
-                        if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false) {
-                            event.getPlayer().closeInventory();
-                            new Screen(nextpage, (Player) event.getPlayer(), WelcomeAds.this.plugin).openTo((Player) event.getPlayer());
-                        } 
-                        else {cancel();}
+            if (nextpage != null) {
+                onScreenOpen openEvent = new onScreenOpen(event, holder, this.plugin);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {cancel();} 
+                        else {
+                            if (getConfig().getBoolean("inventory." + nextpage + ".enable") != false) {
+                                event.getPlayer().closeInventory();
+                                new Screen(nextpage, (Player) event.getPlayer(), WelcomeAds.this.plugin).openTo((Player) event.getPlayer());
+                            } 
+                            else {cancel();}
+                        }
                     }
-                }
-            }.runTaskTimer(this, Long.parseLong("" + delay), Long.parseLong("" + delay));
+                }.runTaskTimer(this, Long.parseLong("" + delay), 1L);
+            }
         }
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
+        // checking if the closed inventory is an instance of WelcomeAds inventory
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
-            Player player = (Player) event.getPlayer();
-            Screen screen = holder.getScreen();
-            player.sendTitle(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, screen.getBackground() != null ? screen.getBackground() : "")), "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
-            InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
-            if (storage != null) {
-                storage.unloadInventoryStorage(player);
-                InventoryStorage.removeInventoryStorage(player);
-            }
+            onScreenClose closeEvent = new onScreenClose(event, holder, this.plugin);
         }
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        // is air item checking
         if (event.getCurrentItem() == null) {return;}
+        // is WelcomeAds's inventory checking
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
-            if (event.getClickedInventory() == event.getView().getBottomInventory()) {event.setCancelled(true);}
-        }
-        if (event.getClickedInventory() == event.getView().getTopInventory()) {
-            Boolean isWelcomeAds = NBT.get(event.getCurrentItem(), (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("welcomeads"));
-            if (isWelcomeAds == null || !isWelcomeAds) {return;}
-            String adsId = NBT.get(event.getCurrentItem(), nbt -> (String) nbt.getString("adsid"));
-            if (adsId == null) {return;
-            }
-            if (isWelcomeAds == true) {
-                int slotIndex = event.getSlot();
-                String foundIndex = null;
-                ConfigurationSection itemsConfig = getConfig().getConfigurationSection("inventory." + adsId + ".items");
-                if (itemsConfig == null) {return;}
-                for (String key : itemsConfig.getKeys(false)) {
-                    if (itemsConfig.getInt(key + ".slot") == slotIndex) {foundIndex = key;}
-                }
-                if (foundIndex == null) {return;}
+            // is player's inventory click cancelling
+            if (event.getClickedInventory() == event.getView().getBottomInventory()) {
                 event.setCancelled(true);
-                List<String> cmds = getConfig().getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
-                Player player = (Player) event.getWhoClicked();
-                if (!cmds.isEmpty()) {
-                    for (String key : cmds) {
-                        key = key.replace("<player>", player.getName());
-                        if (key.contains("[console]")) {
-                            String cmdValue = key.replace("[console]", "");
-                            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmdValue);
-                        } else if (key.contains("[player]")) {
-                            String cmdValue = key.replace("[player]", "");
-                            player.chat("/" + cmdValue);
-                        } else if (key.contains("[close]")) {
-                            player.closeInventory();
-                        } else if (key.contains("[sound]")) {
-                            String sound = key.replace("[sound]", "");
-                            player.playSound(player, sound, 1.0f, 1.0f);
+            }
+            // is player's top inventory checking
+            else if (event.getClickedInventory() == event.getView().getTopInventory()) {
+                // making sure if it's the item from welcomeads using NBT // String("adsid"), Boolean("welcomeads", true)
+                Boolean isWelcomeAds = NBT.get(event.getCurrentItem(), (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("welcomeads"));
+                String adsId = NBT.get(event.getCurrentItem(), nbt -> (String) nbt.getString("adsid"));
+                // checking if the boolean nbt is true and ads id is not null
+                if ((isWelcomeAds != null && isWelcomeAds == true) && (adsId != null)) {
+                    int slotIndex = event.getSlot();
+                    String foundIndex = null;
+                    ConfigurationSection itemsConfig = getConfig().getConfigurationSection("inventory." + adsId + ".items");
+                    // checking for the items config, if there is no config, do nothing
+                    if (itemsConfig != null) {
+                        // finding the slot with the same slot index 
+                        for (String key : itemsConfig.getKeys(false)) {
+                            if (itemsConfig.getInt(key + ".slot") == slotIndex) {foundIndex = key;}
+                        }
+                        // if found, cancel the click event get the command of the clicked item
+                        if (foundIndex != null) {
+                            event.setCancelled(true);
+                            // getting the commands from the configs
+                            List<String> cmds = getConfig().getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
+                            Player player = (Player) event.getWhoClicked();
+                            // checking if there is any commands in the config for the clicked item
+                            if (!cmds.isEmpty()) {
+                                // run the command list
+                                CommandConverter.runStringListCommands(cmds, player);
+                            }
                         }
                     }
                 }
             }
         }
-
     }
 }

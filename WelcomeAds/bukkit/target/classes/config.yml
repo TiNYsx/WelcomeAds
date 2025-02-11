@@ -9,6 +9,8 @@
 # this plugin use `tick` as a main time type, which can convert from 20 tick to 1 seconds.
 # you can found materials name from here (https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
 # you can found sounds name from here (https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html)
+# you need to use this form for sound "minecraft:<lower_case_sound_name>"
+# ex. "minecraft:ui.toast.out"
 
 # setting the `on join` page, you can select one of your inventory from inventory list below
 joinpage: "welcome1"
@@ -78,6 +80,13 @@ inventory:
       text: "&0%img_welcomeads_shift_l_1536%&e%img_welcomeads_background%&0%img_welcomeads_shift_l_1014%"
       stay: 0
       fadeout: 10
+    events:
+      'onInventoryClose':
+        commands:
+        - "[console]msg <player> close event"
+      'onInventoryOpen':
+        commands:
+        - "[console]msg <player> open event"
     items:
       '1':
         material: "PLAYER_HEAD"

@@ -3,12 +3,12 @@
   <parent>
     <artifactId>welcomeads</artifactId>
     <groupId>com.tinysx</groupId>
-    <version>1.4</version>
+    <version>1.5</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>common</artifactId>
   <name>WelcomeAds</name>
-  <version>1.4</version>
+  <version>1.5</version>
   <description>A custom welcome screen plugin for Minecraft.</description>
   <url>https://www.spigotmc.org/members/jirwat.457182/</url>
   <build>
@@ -69,6 +69,12 @@
       <groupId>com.mojang</groupId>
       <artifactId>authlib</artifactId>
       <version>3.11.50</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.md-5</groupId>
+      <artifactId>bungeecord-api</artifactId>
+      <version>1.20-R0.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

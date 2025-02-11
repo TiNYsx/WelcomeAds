@@ -1,4 +1,7 @@
 com\tinysx\welcomeads\Config.class
+com\tinysx\welcomeads\event\onScreenOpen.class
 com\tinysx\welcomeads\Screen.class
-com\tinysx\welcomeads\InventoryStorage.class
 com\tinysx\welcomeads\WelcomeInventoryHolder.class
+com\tinysx\welcomeads\utils\CommandConverter.class
+com\tinysx\welcomeads\InventoryStorage.class
+com\tinysx\welcomeads\event\onScreenClose.class
