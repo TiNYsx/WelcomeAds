@@ -31,6 +31,13 @@ public final class onScreenClose implements Listener {
         this.config = welcomeads.getConfig();
         this.index = this.screen.getIndex();
 
+        
+        player.sendTitle(
+            ChatColor.translateAlternateColorCodes('&',
+                    PlaceholderAPI.setPlaceholders(player,
+                            screen.getBackground() != null ? screen.getBackground() : "")),
+            "", 0, 20, 20);
+
         new BukkitRunnable() {
             @Override
             public void run(){
@@ -38,30 +45,32 @@ public final class onScreenClose implements Listener {
                 if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder == false) {
                     // esc closing & force: true
                     if (config.getBoolean("inventory." + index + ".force") == true) {
+                        player.closeInventory();
                         new Screen(index, player).openTo(player);
+                    }
+                    else {
+                        // sending background fade title to player
+                        player.sendTitle(
+                            ChatColor.translateAlternateColorCodes('&',
+                                    PlaceholderAPI.setPlaceholders(player,
+                                            screen.getBackground() != null ? screen.getBackground() : "")),
+                            "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
+
+                        // getting, loading and remove the player's item storage
+                        if (WelcomeAds.isHaveInventoryStorage(player)) {
+                            WelcomeAds.getInventoryStorage(player).unloadInventoryStorage();
+                            WelcomeAds.removeInventoryStorage(WelcomeAds.getInventoryStorage(player));
+                        }
+
+                        // running event command
+                        List<String> cmds = config.getStringList("inventory." + index + ".events.onInventoryClose.commands");
+                        if (!cmds.isEmpty()) {
+                            CommandConverter.runStringListCommands(cmds, player);
+                        }
                     }
                 }
             }
-        }.runTaskLater(welcomeads, 2L);
-
-        // sending background fade title to player
-        this.player.sendTitle(
-                ChatColor.translateAlternateColorCodes('&',
-                        PlaceholderAPI.setPlaceholders(this.player,
-                                this.screen.getBackground() != null ? this.screen.getBackground() : "")),
-                "", 0, this.screen.getBackgroundStay(), this.screen.getBackgroundFadeout());
-
-        // getting, loading and remove the player's item storage
-        if (WelcomeAds.isHaveInventoryStorage(this.player)) {
-            WelcomeAds.getInventoryStorage(this.player).unloadInventoryStorage();
-            WelcomeAds.removeInventoryStorage(WelcomeAds.getInventoryStorage(this.player));
-        }
-
-        // running event command
-        List<String> cmds = this.config.getStringList("inventory." + this.index + ".events.onInventoryClose.commands");
-        if (!cmds.isEmpty()) {
-            CommandConverter.runStringListCommands(cmds, this.player);
-        }
+        }.runTaskLater(welcomeads, 1L);
     }
 
     public Player getPlayer() {
