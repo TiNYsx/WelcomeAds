@@ -7,12 +7,19 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 
@@ -180,6 +187,57 @@ public final class Screen {
                 }
             }
         }
+
+        // Adding Flags to the item
+        // Adding Enchantments to the item
+        // Adding DyeColor to the item
+        ItemMeta meta = item.getItemMeta();
+        List<String> flagList = this.itemsection.getStringList(key + ".flags");
+        List<String> enchantList = this.itemsection.getStringList(key + ".enchantments");
+        List<String> dyelist = this.itemsection.getStringList(key + ".dyes");
+
+        if (meta != null) {
+            for (String flagkey : flagList) {
+                ItemFlag flag = ItemFlag.valueOf(flagkey);
+                if (flag != null){
+                    meta.addItemFlags(org.bukkit.inventory.ItemFlag.valueOf(flagkey));
+                }
+            }
+            for (String enchantkey : enchantList) {
+                String[] eKey = enchantkey.split(":");
+                if (eKey[0] != null && eKey[1] == null) {
+                    eKey[1] = "1";
+                }
+
+                if (eKey[0] != null && eKey[1] != null) {
+                    Enchantment ench = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(eKey[0].toLowerCase()));
+                    if (ench != null){
+                        meta.addEnchant(ench, Integer.parseInt(eKey[1]), true);
+                    }
+                }
+            }
+
+            if (item.getType().name().contains("LEATHER") || item.getType().name().contains("POTION")) {
+                Color mixedColor = Color.fromRGB(255,255,255);
+                for (String dyekey : dyelist) {
+                    String[] dKey = dyekey.split(":");
+                    if (dKey[0] != null && dKey[1] != null && dKey[2] != null) {
+                        Color cKey = Color.fromRGB(Integer.parseInt(dKey[0]), Integer.parseInt(dKey[1]), Integer.parseInt(dKey[2]));
+                        mixedColor = mixedColor.mixColors(cKey);
+                    }
+                }
+                if (item.getType().name().contains("LEATHER")) {
+                    ((LeatherArmorMeta) meta).setColor(mixedColor);
+                }
+                else if (item.getType().name().contains("POTION")) {
+                    ((PotionMeta) meta).setColor(mixedColor);
+                }
+            }
+
+            item.setItemMeta(meta);
+        }
+
+        // Adding Custom NBT to the item -> to define the custom items from the plugin
         NBT.modify(item, nbt -> {
             nbt.setString("adsid", index);
             nbt.setBoolean("welcomeads", true);

@@ -56,8 +56,10 @@ public class WelcomeAds extends JavaPlugin implements Listener {
         return getInventoryStorage(player) != null;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         this.config = new Config(this.plugin);
         this.config.configLoad();
         if (!NBT.preloadApi()) {
@@ -216,6 +218,7 @@ public class WelcomeAds extends JavaPlugin implements Listener {
         }
     }
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
         // checking if the openned inventory is an instance of WelcomeAds inventory
@@ -224,6 +227,7 @@ public class WelcomeAds extends JavaPlugin implements Listener {
         }
     }
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         // checking if the closed inventory is an instance of WelcomeAds inventory

@@ -1,7 +1,7 @@
 api: "1.21"
 api-version: 1.21
 name: WelcomeAds
-version: "1.6"
+version: "1.7"
 main: com.tinysx.welcomeads.WelcomeAds
 description: A normal ads welcome screen in minecraft with easy configuration. Supported by Erocavontic Creation
 softdepend:
