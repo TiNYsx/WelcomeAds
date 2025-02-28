@@ -90,18 +90,28 @@ inventory:
         - "&7Name: &a%player_name%"
         - "&fThanks for being part of our Community!"
         flags:
-        - "HIDE_ADDITIONAL_TOOLTIP"
-        - "HIDE_ARMOR_TRIM"
-        - "HIDE_ATTRIBUTES"
-        - "HIDE_DESTROYS"
-        - "HIDE_DYE"
         - "HIDE_ENCHANTS"
-        - "HIDE_PLACED_ON"
-        - "HIDE_UNBREAKABLE"
         enchantments:
         - "SHARPNESS:1"
         commands:
         - "[console]welcomeads open welcome2 <player>"
+      '2':
+        material: "POTION"
+        slot: 50
+        name: "&aPlayer Profile"
+        lore:
+        - "&r"
+        - "&7Name: &a%player_name%"
+        - "&fThanks for being part of our Community!"
+        commands:
+        - "[console]welcomeads open welcome2 <player>"
+        flags:
+        - "HIDE_DYE"
+        - "HIDE_ENCHANTS"
+        enchantments:
+        - "UNBREAKING:1"
+        dyes:
+        - "0:255:0"
   'welcome2':
     enable: true
     force: false
