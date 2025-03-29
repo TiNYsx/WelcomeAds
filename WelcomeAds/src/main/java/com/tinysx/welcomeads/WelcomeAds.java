@@ -20,19 +20,17 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
+import com.tinysx.welcomeads.event.InventoryListener;
 import com.tinysx.welcomeads.event.onScreenClose;
 import com.tinysx.welcomeads.event.onScreenOpen;
 import com.tinysx.welcomeads.utils.CommandConverter;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
-import net.skinsrestorer.api.SkinsRestorer;
-import net.skinsrestorer.api.SkinsRestorerProvider;
 
 public class WelcomeAds extends JavaPlugin implements Listener {
     static List<InventoryStorage> inventoryStorages = new ArrayList<>();
     WelcomeAds plugin = this;
-    SkinsRestorer skinsRestorerAPI;
     Config config;
 
     public static void addInventoryStorage(InventoryStorage storage) {
@@ -67,16 +65,7 @@ public class WelcomeAds extends JavaPlugin implements Listener {
             getPluginLoader().disablePlugin(this.plugin);
             return;
         }
-        if (getServer().getPluginManager().getPlugin("SkinsRestorer") == null) {
-            getLogger().severe("SkinsRestorer plugin not found! Disabling WelcomeAds.");
-            getPluginLoader().disablePlugin(this.plugin);
-            return;
-        }
-        this.skinsRestorerAPI = SkinsRestorerProvider.get();
-        if (this.skinsRestorerAPI == null) {
-            getLogger().warning("SkinRestorer is not loading, the plugin might not work correctly.");
-            return;
-        }
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         int pluginId = 24657;
         Metrics metrics = new Metrics(this, pluginId);
         getServer().getPluginManager().registerEvents(this, this.plugin);

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinysx</groupId>
     <artifactId>welcomeads</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
@@ -38,18 +38,11 @@
             <version>1.20-R0.2</version>
             <scope>provided</scope>
         </dependency>
-        <!-- SkinsRestorer API -->
-        <dependency>
-            <groupId>net.skinsrestorer</groupId>
-            <artifactId>skinsrestorer-api</artifactId>
-            <version>15.5.2</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- Spigot API (Provided Scope) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- Item-NBT-API -->

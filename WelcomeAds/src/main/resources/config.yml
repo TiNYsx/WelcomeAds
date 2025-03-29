@@ -95,6 +95,20 @@ inventory:
         - "SHARPNESS:1"
         commands:
         - "[console]welcomeads open welcome2 <player>"
+      'x':
+        material: "PLAYER_HEAD:Notch"
+        slot: 48
+        name: "&aPlayer Profile"
+        lores:
+        - "&r"
+        - "&7Name: &a%player_name%"
+        - "&fThanks for being part of our Community!"
+        flags:
+        - "HIDE_ENCHANTS"
+        enchantments:
+        - "SHARPNESS:1"
+        commands:
+        - "[console]welcomeads open welcome2 <player>"
       '2':
         material: "POTION"
         slot: 50
