@@ -29,6 +29,27 @@ public final class InventoryStorage {
         }
     }
 
+    public static void addInventoryStorage(InventoryStorage storage) {
+        WelcomeAds.inventoryStorages.add(storage);
+    }
+
+    public static void removeInventoryStorage(InventoryStorage storage) {
+        WelcomeAds.inventoryStorages.remove(storage);
+    }
+
+    public static InventoryStorage getInventoryStorage(Player player) {
+        for (InventoryStorage storage : WelcomeAds.inventoryStorages) {
+            if (storage.getPlayer().equals(player)) {
+                return storage;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isHaveInventoryStorage(Player player) {
+        return getInventoryStorage(player) != null;
+    }
+
     public void unloadInventoryStorage() {
         this.player.getInventory().setStorageContents(this.inventory.getContents());
     }

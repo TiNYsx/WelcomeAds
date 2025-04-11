@@ -2,12 +2,14 @@ package com.tinysx.welcomeads.event;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.tinysx.welcomeads.InventoryStorage;
 import com.tinysx.welcomeads.Screen;
 import com.tinysx.welcomeads.WelcomeAds;
 import com.tinysx.welcomeads.WelcomeInventoryHolder;
@@ -31,39 +33,35 @@ public final class onScreenClose implements Listener {
         this.config = welcomeads.getConfig();
         this.index = this.screen.getIndex();
 
-        
         player.sendTitle(
-            ChatColor.translateAlternateColorCodes('&',
-                    PlaceholderAPI.setPlaceholders(player,
-                            screen.getBackground() != null ? screen.getBackground() : "")),
-            "", 0, 20, 20);
+                ChatColor.translateAlternateColorCodes('&',
+                        PlaceholderAPI.setPlaceholders(player,
+                                screen.getBackground() != null ? screen.getBackground() : "")),
+                "", 0, 20, 20);
 
         new BukkitRunnable() {
             @Override
-            public void run(){
-                // checking if the page is forcing to stay or not
-                if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder == false) {
-                    // esc closing & force: true
+            public void run() {
+                if (player.getOpenInventory().getTopInventory()
+                        .getHolder() instanceof WelcomeInventoryHolder == false) {
+
                     if (config.getBoolean("inventory." + index + ".force") == true) {
                         player.closeInventory();
                         new Screen(index, player).openTo(player);
-                    }
-                    else {
-                        // sending background fade title to player
+                    } else {
                         player.sendTitle(
-                            ChatColor.translateAlternateColorCodes('&',
-                                    PlaceholderAPI.setPlaceholders(player,
-                                            screen.getBackground() != null ? screen.getBackground() : "")),
-                            "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
+                                ChatColor.translateAlternateColorCodes('&',
+                                        PlaceholderAPI.setPlaceholders(player,
+                                                screen.getBackground() != null ? screen.getBackground() : "")),
+                                "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
 
-                        // getting, loading and remove the player's item storage
-                        if (WelcomeAds.isHaveInventoryStorage(player)) {
-                            WelcomeAds.getInventoryStorage(player).unloadInventoryStorage();
-                            WelcomeAds.removeInventoryStorage(WelcomeAds.getInventoryStorage(player));
+                        if (InventoryStorage.isHaveInventoryStorage(player)) {
+                            InventoryStorage.getInventoryStorage(player).unloadInventoryStorage();
+                            InventoryStorage.removeInventoryStorage(InventoryStorage.getInventoryStorage(player));
                         }
 
-                        // running event command
-                        List<String> cmds = config.getStringList("inventory." + index + ".events.onInventoryClose.commands");
+                        List<String> cmds = config
+                                .getStringList("inventory." + index + ".events.onInventoryClose.commands");
                         if (!cmds.isEmpty()) {
                             CommandConverter.runStringListCommands(cmds, player);
                         }

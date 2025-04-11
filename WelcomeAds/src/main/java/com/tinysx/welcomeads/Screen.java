@@ -52,42 +52,41 @@ public final class Screen {
     public Screen(String index, Player player) {
         this.index = index;
         this.config = new Config(welcomeads);
-        
-        // Background configuration
+
         if (welcomeads.getConfig().getBoolean("inventory." + index + ".background.enable")) {
-            this.background = welcomeads.getConfig().getString("inventory." + index + ".background.text", 
-                welcomeads.getConfig().getString("background.text"));
-            this.backgroundStay = welcomeads.getConfig().getInt("inventory." + index + ".background.stay", 
-                welcomeads.getConfig().getInt("background.stay"));
-            this.backgroundFadeout = welcomeads.getConfig().getInt("inventory." + index + ".background.fadeout", 
-                welcomeads.getConfig().getInt("background.fadeout"));
+            this.background = welcomeads.getConfig().getString("inventory." + index + ".background.text",
+                    welcomeads.getConfig().getString("background.text"));
+            this.backgroundStay = welcomeads.getConfig().getInt("inventory." + index + ".background.stay",
+                    welcomeads.getConfig().getInt("background.stay"));
+            this.backgroundFadeout = welcomeads.getConfig().getInt("inventory." + index + ".background.fadeout",
+                    welcomeads.getConfig().getInt("background.fadeout"));
         } else {
             this.background = welcomeads.getConfig().getString("background.text");
             this.backgroundStay = welcomeads.getConfig().getInt("background.stay");
             this.backgroundFadeout = welcomeads.getConfig().getInt("background.fadeout");
         }
-        
+
         this.title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,
                 "&f" + this.background + "&f" + welcomeads.getConfig().getString("inventory." + index + ".title")));
         this.itemsection = welcomeads.getConfig().getConfigurationSection("inventory." + this.index + ".items");
         this.holder = new WelcomeInventoryHolder(this);
         this.screenInventory = Bukkit.createInventory(this.holder, 54, this.title);
-        
-        // Preload items when screen is created
+
         preloadItems(player);
     }
 
     private void preloadItems(Player player) {
-        if (itemsPreloaded || itemsection == null) return;
-        
+        if (itemsPreloaded || itemsection == null)
+            return;
+
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        
+
         for (String key : itemsection.getKeys(false)) {
             String headOwner = player.getName();
             String itemMaterial = itemsection.getString(key + ".material");
             int slot = itemsection.getInt(key + ".slot");
             slotToKeyMap.put(slot, key);
-            
+
             List<String> commands = itemsection.getStringList(key + ".commands");
             if (!commands.isEmpty()) {
                 commandMap.put(key, commands);
@@ -98,30 +97,27 @@ public final class Screen {
                 itemMaterial = parts[0];
                 headOwner = parts[1];
             }
-            
-            if (itemMaterial != null && itemMaterial.contains("PLAYER_HEAD")) {                
-                // Async head loading for custom heads
+
+            if (itemMaterial != null && itemMaterial.contains("PLAYER_HEAD")) {
                 CompletableFuture<Void> future = new CompletableFuture<>();
                 futures.add(future);
-                
+
                 HeadsUtil.getPlayerHead(headOwner, head -> {
                     if (head != null) {
-                        ItemStack item = setupItemMeta(head, key, player, 
-                            itemsection.getString(key + ".name"),
-                            itemsection.getInt(key + ".modeldata"),
-                            itemsection.getStringList(key + ".lore"));
+                        ItemStack item = setupItemMeta(head, key, player,
+                                itemsection.getString(key + ".name"),
+                                itemsection.getInt(key + ".modeldata"),
+                                itemsection.getStringList(key + ".lore"));
                         preloadedItems.put(slot, item);
                     }
                     future.complete(null);
                 });
             } else {
-                // Sync item creation for non-head items
                 ItemStack item = createItemSync(key, player);
                 preloadedItems.put(slot, item);
             }
         }
-        
-        // Wait for all heads to load
+
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         itemsPreloaded = true;
     }
@@ -141,29 +137,30 @@ public final class Screen {
     private ItemStack createItemSync(String key, Player player) {
         String itemName = itemsection.getString(key + ".name");
         String itemMaterial = itemsection.getString(key + ".material");
-        
-        if (itemMaterial == null || itemName == null) return null;
-        
+
+        if (itemMaterial == null || itemName == null)
+            return null;
+
         Material material = Material.getMaterial(itemMaterial);
-        if (material == null) return null;
-        
+        if (material == null)
+            return null;
+
         ItemStack item = new ItemStack(material);
         return setupItemMeta(item, key, player, itemName,
-            itemsection.getInt(key + ".modeldata"),
-            itemsection.getStringList(key + ".lore"));
+                itemsection.getInt(key + ".modeldata"),
+                itemsection.getStringList(key + ".lore"));
     }
 
     @SuppressWarnings("deprecation")
-    private ItemStack setupItemMeta(ItemStack item, String key, Player player, 
-                                  String itemName, int itemModelData, List<String> itemLore) {
+    private ItemStack setupItemMeta(ItemStack item, String key, Player player,
+            String itemName, int itemModelData, List<String> itemLore) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) return item;
+        if (meta == null)
+            return item;
 
-        // Basic item properties
         meta.setDisplayName(PlaceholderAPI.setPlaceholders(player,
                 ChatColor.translateAlternateColorCodes('&', itemName)));
-        
-        // Process lore
+
         List<String> processedLore = new ArrayList<>(itemLore.size());
         for (String line : itemLore) {
             processedLore.add(PlaceholderAPI.setPlaceholders(player,
@@ -171,20 +168,18 @@ public final class Screen {
         }
         meta.setLore(processedLore);
 
-        // Custom model data
         if (itemModelData >= 0) {
             meta.setCustomModelData(itemModelData);
         }
 
-        // Item flags
         List<String> flagList = itemsection.getStringList(key + ".flags");
         for (String flagkey : flagList) {
             try {
                 meta.addItemFlags(ItemFlag.valueOf(flagkey));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
-        // Enchantments
         List<String> enchantList = itemsection.getStringList(key + ".enchantments");
         for (String enchantkey : enchantList) {
             String[] eKey = enchantkey.split(":");
@@ -196,7 +191,6 @@ public final class Screen {
             }
         }
 
-        // Dye colors
         if (item.getType().name().contains("LEATHER") || item.getType().name().contains("POTION")) {
             Color mixedColor = Color.fromRGB(255, 255, 255);
             List<String> dyeList = itemsection.getStringList(key + ".dyes");
@@ -204,14 +198,13 @@ public final class Screen {
                 String[] dKey = dyekey.split(":");
                 if (dKey.length >= 3) {
                     Color cKey = Color.fromRGB(
-                        Integer.parseInt(dKey[0]), 
-                        Integer.parseInt(dKey[1]), 
-                        Integer.parseInt(dKey[2])
-                    );
+                            Integer.parseInt(dKey[0]),
+                            Integer.parseInt(dKey[1]),
+                            Integer.parseInt(dKey[2]));
                     mixedColor = mixedColor.mixColors(cKey);
                 }
             }
-            
+
             if (item.getType().name().contains("LEATHER")) {
                 ((LeatherArmorMeta) meta).setColor(mixedColor);
             } else if (item.getType().name().contains("POTION")) {
@@ -220,7 +213,6 @@ public final class Screen {
         }
         item.setItemMeta(meta);
 
-        // Only set head owner if it's a player head and not already set by HeadsUtil
         if (item.getType() == Material.PLAYER_HEAD && !item.hasItemMeta()) {
             SkullMeta skullmeta = (SkullMeta) item.getItemMeta();
             String material = itemsection.getString(key + ".material");
@@ -230,8 +222,7 @@ public final class Screen {
             }
             item.setItemMeta(skullmeta);
         }
-        
-        // NBT data
+
         NBT.modify(item, nbt -> {
             nbt.setString("adsid", key);
             nbt.setBoolean("welcomeads", true);
@@ -254,35 +245,55 @@ public final class Screen {
             player.sendMessage(config.loadLang("screen-config-none").replace("<index>", index));
             return;
         }
-        
+
         if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
             player.closeInventory();
         }
-        
-        String perm = welcomeads.getConfig().getString("inventory." + index + ".permission", 
-            "welcomeads.open." + index);
-        
+
+        String perm = welcomeads.getConfig().getString("inventory." + index + ".permission",
+                "welcomeads.open." + index);
+
         if (player.hasPermission(perm)) {
-            if (WelcomeAds.isHaveInventoryStorage(player)) {
-                InventoryStorage storage = WelcomeAds.getInventoryStorage(player);
+            if (InventoryStorage.isHaveInventoryStorage(player)) {
+                InventoryStorage storage = InventoryStorage.getInventoryStorage(player);
                 storage.unloadInventoryStorage();
-                WelcomeAds.removeInventoryStorage(storage);
+                InventoryStorage.removeInventoryStorage(storage);
             }
-            
+
             InventoryStorage storage = new InventoryStorage(player);
             storage.loadInventoryStorage();
-            WelcomeAds.addInventoryStorage(storage);
+            InventoryStorage.addInventoryStorage(storage);
             player.openInventory(getScreenInventory(player));
         } else {
             player.sendMessage(config.loadLang("cmd-perm-none"));
         }
     }
 
-    public WelcomeInventoryHolder getHolder() { return holder; }
-    public String getIndex() { return index; }
-    public String getBackground() { return background; }
-    public Integer getBackgroundStay() { return backgroundStay; }
-    public Integer getBackgroundFadeout() { return backgroundFadeout; }
-    public String getTitle() { return title; }
-    public ConfigurationSection getItemSection() { return itemsection; }
+    public WelcomeInventoryHolder getHolder() {
+        return holder;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public String getBackground() {
+        return background;
+    }
+
+    public Integer getBackgroundStay() {
+        return backgroundStay;
+    }
+
+    public Integer getBackgroundFadeout() {
+        return backgroundFadeout;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public ConfigurationSection getItemSection() {
+        return itemsection;
+    }
 }

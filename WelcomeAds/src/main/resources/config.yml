@@ -16,10 +16,13 @@
 joinpage: "welcome1"
 
 # loading type, you can use 
-# "onstart" to load the `join page` after player join the server
+# "onjoin" to load the `join page` after player join the server
 # "onresourcepack" to load the `join page` after player loaded the server's resourcepack
 # "both" for both event.
-loadtype: "both"
+loadtype: "onjoin"
+
+# setting this to `true` will show the welcomeads to the player only once per server session.
+persession: true
 
 # the permission to give access to `welcomeads reload` command, normally give this to admin/owner role.
 permission: "welcomeads.reload"

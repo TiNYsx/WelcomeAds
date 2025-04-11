@@ -11,13 +11,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
 
 import com.tinysx.welcomeads.event.InventoryListener;
@@ -28,31 +31,22 @@ import com.tinysx.welcomeads.utils.CommandConverter;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 
+
+/**
+ * WelcomeAds - A plugin for displaying advertisements to players in Minecraft.
+ * @author TiNYsx
+ * @version 1.8.1
+ **/
+
 public class WelcomeAds extends JavaPlugin implements Listener {
+    // The list of inventory storages, contains all the inventories of players
     static List<InventoryStorage> inventoryStorages = new ArrayList<>();
+    
+    // Storaging player data, such as seen status for now
+    static List<PlayerDataStorage> playerDataStorages = new ArrayList<>();
+
     WelcomeAds plugin = this;
     Config config;
-
-    public static void addInventoryStorage(InventoryStorage storage) {
-        inventoryStorages.add(storage);
-    }
-
-    public static void removeInventoryStorage(InventoryStorage storage) {
-        inventoryStorages.remove(storage);
-    }
-
-    public static InventoryStorage getInventoryStorage(Player player) {
-        for (InventoryStorage storage : inventoryStorages) {
-            if (storage.getPlayer().equals(player)) {
-                return storage;
-            }
-        }
-        return null;
-    }
-
-    public static boolean isHaveInventoryStorage(Player player) {
-        return getInventoryStorage(player) != null;
-    }
 
     @SuppressWarnings("unused")
     @Override
@@ -176,18 +170,60 @@ public class WelcomeAds extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = (Player) event.getPlayer();
+        if (PlayerDataStorage.isHavePlayerDataStorage(player)) {
+            PlayerDataStorage storage = PlayerDataStorage.getPlayerDataStorage(player);
+            storage.getStatus().setJoinStatus(false);
+        }
+    }
+
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = (Player) event.getPlayer();
-        if (isHaveInventoryStorage(player)) {
-            InventoryStorage storage = getInventoryStorage(player);
-            storage.unloadInventoryStorage();
-            removeInventoryStorage(storage);
+        if (InventoryStorage.isHaveInventoryStorage(player)) {
+            InventoryStorage istorage = InventoryStorage.getInventoryStorage(player);
+            istorage.unloadInventoryStorage();
+            InventoryStorage.removeInventoryStorage(istorage);
         }
         String loadtype = getConfig().getString("loadtype");
         if (loadtype != null && (loadtype.equalsIgnoreCase("onjoin") || loadtype.equalsIgnoreCase("both"))) {
             String page = getConfig().getString("joinpage");
             if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
-                new Screen(page, player).openTo(player);
+                if (PlayerDataStorage.isHavePlayerDataStorage(player)) {
+                    if (getConfig().getBoolean("persession") == true) {
+                        PlayerDataStorage storage = PlayerDataStorage.getPlayerDataStorage(player);
+                        storage.getStatus().setJoinStatus(true);
+                        if (storage.getSeenStatus() == true) {
+                            return;
+                        } else {
+                            storage.setSeenStatus(true);
+                        }
+                    }
+                    new Screen(page, player).openTo(player);
+                } else {
+                    PlayerDataStorage storage = new PlayerDataStorage(player);
+                    storage.setSeenStatus(true);
+                    storage.getStatus().setJoinStatus(true);
+                    PlayerDataStorage.addPlayerDataStorage(storage);
+                    new Screen(page, player).openTo(player);
+                }
+            }
+        } else if (loadtype != null && (loadtype.equalsIgnoreCase("onresourcepack"))) {
+            String page = getConfig().getString("joinpage");
+            if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
+                if (PlayerDataStorage.isHavePlayerDataStorage(player)) {
+                    PlayerDataStorage storage = PlayerDataStorage.getPlayerDataStorage(player);
+                    if (storage.getStatus().getJoinStatus() == true) {
+                        return;
+                    } else {
+                        storage.getStatus().setJoinStatus(true);
+                    }
+                } else {
+                    PlayerDataStorage storage = new PlayerDataStorage(player);
+                    storage.getStatus().setJoinStatus(true);
+                    PlayerDataStorage.addPlayerDataStorage(storage);
+                }
             }
         }
     }
@@ -197,11 +233,57 @@ public class WelcomeAds extends JavaPlugin implements Listener {
         if (event.getStatus() == PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED) {
             Player player = (Player) event.getPlayer();
             String loadtype = getConfig().getString("loadtype");
-            if (loadtype != null
-                    && (loadtype.equalsIgnoreCase("onresourcepack") || loadtype.equalsIgnoreCase("both"))) {
+            if (loadtype != null && (loadtype.equalsIgnoreCase("onresourcepack") || loadtype.equalsIgnoreCase("both"))) {
                 String page = getConfig().getString("joinpage");
-                if (getConfig().getBoolean("inventory." + page + ".enable") != false) {
-                    new Screen(page, player).openTo(player);
+                if (getConfig().getBoolean("inventory." + page + ".enable") != false){
+                    if (PlayerDataStorage.isHavePlayerDataStorage(player)) {
+                        PlayerDataStorage storage = PlayerDataStorage.getPlayerDataStorage(player);
+                        if (getConfig().getBoolean("persession") == true) {
+                            if (storage.getSeenStatus() == true) {
+                                return;
+                            }
+                        }
+                        if (storage.getStatus().getJoinStatus() != true) {
+                            new BukkitRunnable() {
+                                Integer count = 0;
+                                @Override
+                                public void run() {
+                                    if (storage.getStatus().getJoinStatus() == true) {
+                                        storage.setSeenStatus(true);
+                                        new Screen(page, player).openTo(player);
+                                        cancel();
+                                    } else if (count < 20) {
+                                        count++;
+                                    } else {
+                                        cancel();
+                                        return;
+                                    }
+                                }
+                            }.runTaskTimer(this, 10L, 10L);
+                        } else {
+                            storage.setSeenStatus(true);
+                            new Screen(page, player).openTo(player);
+                        }
+                    } else {
+                        PlayerDataStorage storage = new PlayerDataStorage(player);
+                        PlayerDataStorage.addPlayerDataStorage(storage);
+                        new BukkitRunnable() {
+                            Integer count = 0;
+                            @Override
+                            public void run() {
+                                if (storage.getStatus().getJoinStatus() == true) {
+                                    storage.setSeenStatus(true);
+                                    new Screen(page, player).openTo(player);
+                                    cancel();
+                                } else if (count < 20) {
+                                    count++;
+                                } else {
+                                    cancel();
+                                    return;
+                                }
+                            }
+                        }.runTaskTimer(this, 10L, 10L);
+                    }
                 }
             }
         }
@@ -210,7 +292,6 @@ public class WelcomeAds extends JavaPlugin implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
-        // checking if the openned inventory is an instance of WelcomeAds inventory
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
             onScreenOpen openEvent = new onScreenOpen(event, holder);
         }
@@ -219,7 +300,6 @@ public class WelcomeAds extends JavaPlugin implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        // checking if the closed inventory is an instance of WelcomeAds inventory
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder holder) {
             onScreenClose closeEvent = new onScreenClose(event, holder);
         }
@@ -227,47 +307,33 @@ public class WelcomeAds extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        // is air item checking
         if (event.getCurrentItem() == null) {
             return;
         }
-        // is WelcomeAds's inventory checking
         if (event.getView().getTopInventory().getHolder() instanceof WelcomeInventoryHolder) {
-            // is player's inventory click cancelling
             if (event.getClickedInventory() == event.getView().getBottomInventory()) {
                 event.setCancelled(true);
-            }
-            // is player's top inventory checking
-            else if (event.getClickedInventory() == event.getView().getTopInventory()) {
-                // making sure if it's the item from welcomeads using NBT // String("adsid"),
-                // Boolean("welcomeads", true)
+            } else if (event.getClickedInventory() == event.getView().getTopInventory()) {
                 Boolean isWelcomeAds = NBT.get(event.getCurrentItem(),
                         (Function<ReadableItemNBT, Boolean>) nbt -> nbt.getBoolean("welcomeads"));
                 String adsId = NBT.get(event.getCurrentItem(), nbt -> (String) nbt.getString("adsid"));
-                // checking if the boolean nbt is true and ads id is not null
                 if ((isWelcomeAds != null && isWelcomeAds == true) && (adsId != null)) {
                     int slotIndex = event.getSlot();
                     String foundIndex = null;
                     ConfigurationSection itemsConfig = getConfig()
                             .getConfigurationSection("inventory." + adsId + ".items");
-                    // checking for the items config, if there is no config, do nothing
                     if (itemsConfig != null) {
-                        // finding the slot with the same slot index
                         for (String key : itemsConfig.getKeys(false)) {
                             if (itemsConfig.getInt(key + ".slot") == slotIndex) {
                                 foundIndex = key;
                             }
                         }
-                        // if found, cancel the click event get the command of the clicked item
                         if (foundIndex != null) {
                             event.setCancelled(true);
-                            // getting the commands from the configs
                             List<String> cmds = getConfig()
                                     .getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
                             Player player = (Player) event.getWhoClicked();
-                            // checking if there is any commands in the config for the clicked item
                             if (!cmds.isEmpty()) {
-                                // run the command list
                                 CommandConverter.runStringListCommands(cmds, player);
                             }
                         }

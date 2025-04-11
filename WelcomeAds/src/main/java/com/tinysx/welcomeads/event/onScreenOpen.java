@@ -2,6 +2,7 @@ package com.tinysx.welcomeads.event;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -33,14 +34,12 @@ public final class onScreenOpen {
         this.nextpage = this.config.getString("inventory." + this.index + ".nextpage");
         this.delay = this.config.getInt("inventory." + this.index + ".delay");
 
-        // sending background title to player
         this.player.sendTitle(
                 ChatColor.translateAlternateColorCodes('&',
                         PlaceholderAPI.setPlaceholders(this.player,
                                 this.screen.getBackground() != null ? this.screen.getBackground() : "")),
                 "", 0, this.screen.getBackgroundStay(), this.screen.getBackgroundFadeout());
 
-        // running event command
         List<String> cmds = this.config.getStringList("inventory." + this.index + ".events.onInventoryOpen.commands");
         if (!cmds.isEmpty()) {
             CommandConverter.runStringListCommands(cmds, this.player);
@@ -50,14 +49,12 @@ public final class onScreenOpen {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView()
-                    .getTopInventory()) {
+                    if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {
                         cancel();
                     } else {
                         if (welcomeads.getConfig().getBoolean("inventory." + nextpage + ".enable") != false) {
                             event.getPlayer().closeInventory();
-                            new Screen(nextpage, (Player) event.getPlayer())
-                            .openTo((Player) event.getPlayer());
+                            new Screen(nextpage, (Player) event.getPlayer()).openTo((Player) event.getPlayer());
                         } else {
                             cancel();
                         }

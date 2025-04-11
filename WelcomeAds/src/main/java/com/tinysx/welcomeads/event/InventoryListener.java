@@ -9,18 +9,21 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import com.tinysx.welcomeads.WelcomeInventoryHolder;
 
 public class InventoryListener implements Listener {
-    
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getInventory().getHolder() instanceof WelcomeInventoryHolder)) return;
-        
-        // Cancel all events immediately
+        if (!(event.getInventory().getHolder() instanceof WelcomeInventoryHolder))
+            return;
+
         event.setCancelled(true);
-        
-        if (event.getClickedInventory() == null) return;
-        if (event.getCurrentItem() == null) return;
-        if (event.getClickedInventory() != event.getView().getTopInventory()) return;
-        
+
+        if (event.getClickedInventory() == null)
+            return;
+        if (event.getCurrentItem() == null)
+            return;
+        if (event.getClickedInventory() != event.getView().getTopInventory())
+            return;
+
         WelcomeInventoryHolder holder = (WelcomeInventoryHolder) event.getInventory().getHolder();
         holder.getScreen().handleClick(event.getSlot(), (Player) event.getWhoClicked());
     }

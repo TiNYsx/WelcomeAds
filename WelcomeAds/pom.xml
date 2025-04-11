@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinysx</groupId>
     <artifactId>welcomeads</artifactId>
-    <version>1.8</version>
+    <version>1.8.1</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
