@@ -88,7 +88,7 @@ inventory:
         material: "PLAYER_HEAD"
         slot: 48
         name: "&aPlayer Profile"
-        lores:
+        lore:
         - "&r"
         - "&7Name: &a%player_name%"
         - "&fThanks for being part of our Community!"
@@ -102,7 +102,7 @@ inventory:
         material: "PLAYER_HEAD:Notch"
         slot: 48
         name: "&aPlayer Profile"
-        lores:
+        lore:
         - "&r"
         - "&7Name: &a%player_name%"
         - "&fThanks for being part of our Community!"
