@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinysx</groupId>
     <artifactId>welcomeads</artifactId>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
@@ -21,7 +21,6 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
         <!-- Mojang Authlib API -->
@@ -49,7 +48,7 @@
         <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api</artifactId>
-            <version>2.14.1</version>
+            <version>2.15.0</version>
         </dependency>
         <!-- PlaceholderAPI (Optional) -->
         <dependency>
@@ -65,6 +64,7 @@
         <repository>
             <id>codemc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
+            <layout>default</layout>
         </repository>
         <!-- JitPack Repository -->
         <repository>
@@ -131,4 +131,38 @@
             </plugin>
         </plugins>
     </build>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.md-5</groupId>
+                <artifactId>bungeecord-chat</artifactId>
+                <version>1.20-R0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>24.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>32.1.2-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bstats</groupId>
+                <artifactId>bstats-bukkit</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.10.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

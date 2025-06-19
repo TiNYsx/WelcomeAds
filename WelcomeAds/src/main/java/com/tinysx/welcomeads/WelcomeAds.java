@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -35,7 +34,7 @@ import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 /**
  * WelcomeAds - A plugin for displaying advertisements to players in Minecraft.
  * @author TiNYsx
- * @version 1.8.1
+ * @version 1.8.2
  **/
 
 public class WelcomeAds extends JavaPlugin implements Listener {
