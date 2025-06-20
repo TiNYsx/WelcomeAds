@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class HeadsUtil {
+
     private static final Map<String, ItemStack> headCache = new HashMap<>();
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
@@ -54,8 +55,9 @@ public class HeadsUtil {
                         .build();
 
                 HttpResponse<String> uuidResponse = HTTP_CLIENT.send(uuidRequest, HttpResponse.BodyHandlers.ofString());
-                if (uuidResponse.statusCode() != 200)
+                if (uuidResponse.statusCode() != 200) {
                     return null;
+                }
 
                 JsonObject uuidJson = JsonParser.parseString(uuidResponse.body()).getAsJsonObject();
                 String uuid = uuidJson.get("id").getAsString();
@@ -67,8 +69,9 @@ public class HeadsUtil {
 
                 HttpResponse<String> textureResponse = HTTP_CLIENT.send(textureRequest,
                         HttpResponse.BodyHandlers.ofString());
-                if (textureResponse.statusCode() != 200)
+                if (textureResponse.statusCode() != 200) {
                     return null;
+                }
 
                 JsonObject textureJson = JsonParser.parseString(textureResponse.body()).getAsJsonObject();
                 return textureJson.getAsJsonArray("properties")
@@ -89,8 +92,9 @@ public class HeadsUtil {
                         .build();
 
                 HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200)
+                if (response.statusCode() != 200) {
                     return null;
+                }
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 return json.getAsJsonArray("properties")

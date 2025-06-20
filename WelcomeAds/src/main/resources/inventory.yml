@@ -1,0 +1,86 @@
+inventory:
+  'welcome1':
+    force: true
+    title: "%img_welcomeads_page_1%"
+    background: 
+      text: "&0%img_welcomeads_shift_l_1536%&e%img_welcomeads_background%&0%img_welcomeads_shift_l_1014%"
+      fadein: 0
+      stay: 0
+      fadeout: 10
+    items:
+      '1':
+        material: "PLAYER_HEAD"
+        slot: 48
+        name: "&aPlayer Profile"
+        lore:
+        - "&r"
+        - "&7Name: &a%player_name%"
+        - "&fThanks for being part of our Community!"
+        flags:
+        - "HIDE_ENCHANTS"
+        enchantments:
+        - "SHARPNESS:1"
+        commands:
+        - "[console]welcomeads open welcome-2 <player>"
+      '2':
+        material: "POTION"
+        slot: 50
+        name: "&aPlayer Profile"
+        lore:
+        - "&r"
+        - "&7Name: &a%player_name%"
+        - "&fThanks for being part of our Community!"
+        commands:
+        - "[console]welcomeads open welcome-2 <player>"
+        flags:
+        - "HIDE_DYE"
+        - "HIDE_ENCHANTS"
+        enchantments:
+        - "UNBREAKING:1"
+        dyes:
+        - "0:255:0"
+  'welcome2':
+    force: false
+    title: "%img_welcomeads_page_2%"
+    background: 
+      text: "&0%img_welcomeads_shift_l_1536%&e%img_welcomeads_background%&0%img_welcomeads_shift_l_1014%"
+      fadein: 0
+      stay: 0
+      fadeout: 10
+    items:
+      '1':
+        material: "EMERALD_BLOCK"
+        modeldata: 0
+        slot: 49
+        name: "&fWelcome to the Server!"
+        lore:
+        - "&r"
+        - "&aRules"
+        - "&71.&fDo not use any cheat."
+        - "&72.&fTreat every player with kindness."
+        - "&r"
+        - "&fEnjoy the server!"
+        - "&r"
+        commands:
+        - "[console]welcomeads open welcome-3 <player>"
+  'welcome3':
+    force: false
+    title: "%img_welcomeads_page_3%"
+    background: 
+      text: "&0%img_welcomeads_shift_l_1536%&e%img_welcomeads_background%&0%img_welcomeads_shift_l_1014%"
+      fadein: 0
+      stay: 0
+      fadeout: 10
+    items:
+      '1':
+        material: "DIAMOND_BLOCK"
+        modeldata: 0
+        slot: 50
+        name: "&fStore"
+        lore:
+        - "&r"
+        - "&fBuy item in our Store!"
+        - "&elink >> &7store.&courserver&7.com"
+        - "&r"
+        commands:
+        - "[close]"

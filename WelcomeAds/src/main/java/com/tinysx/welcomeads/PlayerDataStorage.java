@@ -3,11 +3,13 @@ package com.tinysx.welcomeads;
 import org.bukkit.entity.Player;
 
 public class PlayerDataStorage {
+
     private boolean seenStatus = false;
     private final Status status = new Status();
     private final Player player;
 
-    class Status {
+    public class Status {
+
         private boolean joinStatus = false;
 
         public boolean getJoinStatus() {
@@ -47,7 +49,7 @@ public class PlayerDataStorage {
     public void setSeenStatus(boolean status) {
         this.seenStatus = status;
     }
-    
+
     public boolean getSeenStatus() {
         return seenStatus;
     }

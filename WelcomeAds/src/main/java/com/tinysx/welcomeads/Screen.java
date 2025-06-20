@@ -38,6 +38,8 @@ public final class Screen {
 
     public Inventory screenInventory;
     public String index;
+    public String container;
+    public Integer containerIndex;
     public String title;
     public String background;
     public Integer backgroundStay = 0;
@@ -49,26 +51,39 @@ public final class Screen {
     private final Map<Integer, ItemStack> preloadedItems = new HashMap<>();
     private boolean itemsPreloaded = false;
 
-    public Screen(String index, Player player) {
-        this.index = index;
-        this.config = new Config(welcomeads);
-
-        if (welcomeads.getConfig().getBoolean("inventory." + index + ".background.enable")) {
-            this.background = welcomeads.getConfig().getString("inventory." + index + ".background.text",
-                    welcomeads.getConfig().getString("background.text"));
-            this.backgroundStay = welcomeads.getConfig().getInt("inventory." + index + ".background.stay",
-                    welcomeads.getConfig().getInt("background.stay"));
-            this.backgroundFadeout = welcomeads.getConfig().getInt("inventory." + index + ".background.fadeout",
-                    welcomeads.getConfig().getInt("background.fadeout"));
+    public Screen(String container, Integer containerIndex, Player player) {
+        this.config = this.welcomeads.config;
+        this.container = container;
+        List<String> invList = config.loadContainer().getStringList("container." + container + ".inventory");
+        if (containerIndex > invList.size() - 1) {
+            if (config.loadContainer().getBoolean("container." + container + ".loop")) {
+                this.containerIndex = 0;
+                this.index = invList.get(this.containerIndex);
+            }
+        } else if (containerIndex < 0) {
+            this.containerIndex = 0;
+            this.index = invList.get(this.containerIndex);
         } else {
-            this.background = welcomeads.getConfig().getString("background.text");
-            this.backgroundStay = welcomeads.getConfig().getInt("background.stay");
-            this.backgroundFadeout = welcomeads.getConfig().getInt("background.fadeout");
+            this.containerIndex = containerIndex;
+            this.index = invList.get(this.containerIndex);
+        }
+
+        if (config.loadInventory().getString("inventory." + this.index + ".background.text") != null) {
+            this.background = config.loadInventory().getString("inventory." + this.index + ".background.text",
+                    welcomeads.getConfig().getString("global-background.text"));
+            this.backgroundStay = config.loadInventory().getInt("inventory." + this.index + ".background.stay",
+                    welcomeads.getConfig().getInt("global-background.stay"));
+            this.backgroundFadeout = config.loadInventory().getInt("inventory." + this.index + ".background.fadeout",
+                    welcomeads.getConfig().getInt("global-background.fadeout"));
+        } else {
+            this.background = welcomeads.getConfig().getString("global-background.text");
+            this.backgroundStay = welcomeads.getConfig().getInt("global-background.stay");
+            this.backgroundFadeout = welcomeads.getConfig().getInt("global-background.fadeout");
         }
 
         this.title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,
-                "&f" + this.background + "&f" + welcomeads.getConfig().getString("inventory." + index + ".title")));
-        this.itemsection = welcomeads.getConfig().getConfigurationSection("inventory." + this.index + ".items");
+                "&f" + this.background + "&f" + config.loadInventory().getString("inventory." + this.index + ".title")));
+        this.itemsection = config.loadInventory().getConfigurationSection("inventory." + this.index + ".items");
         this.holder = new WelcomeInventoryHolder(this);
         this.screenInventory = Bukkit.createInventory(this.holder, 54, this.title);
 
@@ -76,8 +91,9 @@ public final class Screen {
     }
 
     private void preloadItems(Player player) {
-        if (itemsPreloaded || itemsection == null)
+        if (this.itemsPreloaded || this.itemsection == null) {
             return;
+        }
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
@@ -118,8 +134,8 @@ public final class Screen {
             }
         }
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        itemsPreloaded = true;
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+        this.itemsPreloaded = true;
     }
 
     public boolean handleClick(int slot, Player player) {
@@ -138,12 +154,14 @@ public final class Screen {
         String itemName = itemsection.getString(key + ".name");
         String itemMaterial = itemsection.getString(key + ".material");
 
-        if (itemMaterial == null || itemName == null)
+        if (itemMaterial == null || itemName == null) {
             return null;
+        }
 
         Material material = Material.getMaterial(itemMaterial);
-        if (material == null)
+        if (material == null) {
             return null;
+        }
 
         ItemStack item = new ItemStack(material);
         return setupItemMeta(item, key, player, itemName,
@@ -155,8 +173,9 @@ public final class Screen {
     private ItemStack setupItemMeta(ItemStack item, String key, Player player,
             String itemName, int itemModelData, List<String> itemLore) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
+        if (meta == null) {
             return item;
+        }
 
         meta.setDisplayName(PlaceholderAPI.setPlaceholders(player,
                 ChatColor.translateAlternateColorCodes('&', itemName)));
@@ -235,14 +254,14 @@ public final class Screen {
             player = Bukkit.getPlayer("Steve");
         }
         for (Map.Entry<Integer, ItemStack> entry : preloadedItems.entrySet()) {
-            screenInventory.setItem(entry.getKey(), entry.getValue());
+            this.screenInventory.setItem(entry.getKey(), entry.getValue());
         }
-        return screenInventory;
+        return this.screenInventory;
     }
 
     public void openTo(Player player) {
-        if (itemsection == null) {
-            player.sendMessage(config.loadLang("screen-config-none").replace("<index>", index));
+        if (this.itemsection == null) {
+            player.sendMessage(config.loadLang("screen-config-none").replace("<index>", this.index));
             return;
         }
 
@@ -250,8 +269,8 @@ public final class Screen {
             player.closeInventory();
         }
 
-        String perm = welcomeads.getConfig().getString("inventory." + index + ".permission",
-                "welcomeads.open." + index);
+        String perm = config.loadContainer().getString("container." + this.container + ".permission",
+                "welcomeads.open." + this.index);
 
         if (player.hasPermission(perm)) {
             if (InventoryStorage.isHaveInventoryStorage(player)) {
@@ -270,30 +289,38 @@ public final class Screen {
     }
 
     public WelcomeInventoryHolder getHolder() {
-        return holder;
+        return this.holder;
     }
 
     public String getIndex() {
-        return index;
+        return this.index;
+    }
+
+    public String getContainer() {
+        return this.container;
+    }
+
+    public Integer getContainerIndex() {
+        return this.containerIndex;
     }
 
     public String getBackground() {
-        return background;
+        return this.background;
     }
 
     public Integer getBackgroundStay() {
-        return backgroundStay;
+        return this.backgroundStay;
     }
 
     public Integer getBackgroundFadeout() {
-        return backgroundFadeout;
+        return this.backgroundFadeout;
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public ConfigurationSection getItemSection() {
-        return itemsection;
+        return this.itemsection;
     }
 }
