@@ -2,9 +2,7 @@ package com.tinysx.welcomeads.event;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -90,7 +88,7 @@ public class InventoryListener implements Listener {
                                 ChatColor.translateAlternateColorCodes('&',
                                         PlaceholderAPI.setPlaceholders(player,
                                                 screen.getBackground() != null ? screen.getBackground() : "")),
-                                "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
+                                "", screen.getBackgroundFadein(), screen.getBackgroundStay(), screen.getBackgroundFadeout());
 
                         if (InventoryStorage.isHaveInventoryStorage(player)) {
                             InventoryStorage.getInventoryStorage(player).unloadInventoryStorage();
@@ -127,7 +125,7 @@ public class InventoryListener implements Listener {
                 ChatColor.translateAlternateColorCodes('&',
                         PlaceholderAPI.setPlaceholders(player,
                                 screen.getBackground() != null ? screen.getBackground() : "")),
-                "", 0, screen.getBackgroundStay(), screen.getBackgroundFadeout());
+                "", screen.getBackgroundFadein(), screen.getBackgroundStay(), screen.getBackgroundFadeout());
 
         List<String> cmds = config.loadInventory().getStringList("inventory." + index + ".events.onInventoryOpen.commands");
         if (!cmds.isEmpty()) {

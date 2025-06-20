@@ -44,6 +44,7 @@ public final class Screen {
     public String background;
     public Integer backgroundStay = 0;
     public Integer backgroundFadeout = 0;
+    public Integer backgroundFadein = 0;
     public ConfigurationSection itemsection;
     private final Config config;
     private final WelcomeInventoryHolder holder;
@@ -75,10 +76,13 @@ public final class Screen {
                     welcomeads.getConfig().getInt("global-background.stay"));
             this.backgroundFadeout = config.loadInventory().getInt("inventory." + this.index + ".background.fadeout",
                     welcomeads.getConfig().getInt("global-background.fadeout"));
+            this.backgroundFadein = config.loadInventory().getInt("inventory." + this.index + ".background.fadein",
+                    welcomeads.getConfig().getInt("global-background.fadein"));
         } else {
             this.background = welcomeads.getConfig().getString("global-background.text");
             this.backgroundStay = welcomeads.getConfig().getInt("global-background.stay");
             this.backgroundFadeout = welcomeads.getConfig().getInt("global-background.fadeout");
+            this.backgroundFadein = welcomeads.getConfig().getInt("global-background.fadein");
         }
 
         this.title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,
@@ -314,6 +318,10 @@ public final class Screen {
 
     public Integer getBackgroundFadeout() {
         return this.backgroundFadeout;
+    }
+
+    public Integer getBackgroundFadein() {
+        return this.backgroundFadein;
     }
 
     public String getTitle() {
