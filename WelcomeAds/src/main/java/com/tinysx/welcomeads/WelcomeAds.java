@@ -22,7 +22,7 @@ import de.tr7zw.changeme.nbtapi.NBT;
  * WelcomeAds - A plugin for displaying advertisements to players in Minecraft.
  *
  * @author TiNYsx
- * @version 1.9
+ * @version 1.9.1
  *
  */
 public class WelcomeAds extends JavaPlugin implements Listener {
