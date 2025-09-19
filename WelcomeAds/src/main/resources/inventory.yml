@@ -63,6 +63,10 @@ inventory:
         - "&r"
         commands:
         - "[console]welcomeads open welcome-3 <player>"
+    events:
+      "onInventoryClose":
+        commands:
+        - "[console]help 1 <player>"
   'welcome3':
     force: false
     title: "%img_welcomeads_page_3%"
