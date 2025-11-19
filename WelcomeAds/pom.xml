@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinysx</groupId>
     <artifactId>welcomeads</artifactId>
-    <version>1.9.2</version>
+    <version>1.9.3</version>
     <name>WelcomeAds</name>
     <description>A custom welcome screen plugin for Minecraft.</description>
     <url>https://www.spigotmc.org/members/jirwat.457182/</url>
@@ -48,13 +48,13 @@
         <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api</artifactId>
-            <version>2.15.2</version>
+            <version>2.15.3</version>
         </dependency>
         <!-- PlaceholderAPI (Optional) -->
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>2.11.6</version>
+            <version>2.11.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -156,7 +156,7 @@
             <dependency>
                 <groupId>org.bstats</groupId>
                 <artifactId>bstats-bukkit</artifactId>
-                <version>3.0.1</version>
+                <version>3.0.2</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
