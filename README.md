@@ -38,5 +38,5 @@ For full details, refer to the [LICENSE](LICENSE) file.
 Contributions are welcome! Please submit a pull request or open an issue on the official GitHub repository.
 
 ## Support
-If you encounter issues or have questions, feel free to open an issue on the GitHub repository or contact the me directly via this discord `tiny.tinysx` or `tinysx`.
+If you encounter issues or have questions, feel free to open an issue on the GitHub repository or contact the me directly via this discord `tiny.tinysx`.
 Discord support server link: `https://discord.gg/JMdjgnzG8W`
