@@ -25,6 +25,8 @@ public final class CommandConverter {
             player.closeInventory();
         } else if (key.contains("[sound]")) {
             String sound = key.replace("[sound]", "");
+            sound = sound.replace(player.getName().toString(), "");
+            sound = sound.replace(" ", "");
             player.playSound(player, sound, 1.0f, 1.0f);
         }
     }

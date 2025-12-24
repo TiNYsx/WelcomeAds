@@ -1,0 +1,16 @@
+com\tinysx\welcomeads\Config.class
+com\tinysx\welcomeads\Screen.class
+com\tinysx\welcomeads\event\PlayerListener.class
+com\tinysx\welcomeads\event\PlayerListener$2.class
+com\tinysx\welcomeads\PlayerDataStorage$Status.class
+com\tinysx\welcomeads\event\InventoryListener$3.class
+com\tinysx\welcomeads\utils\CommandConverter.class
+com\tinysx\welcomeads\event\InventoryListener.class
+com\tinysx\welcomeads\utils\HeadsUtil.class
+com\tinysx\welcomeads\WelcomeAds.class
+com\tinysx\welcomeads\event\InventoryListener$1.class
+com\tinysx\welcomeads\WelcomeInventoryHolder.class
+com\tinysx\welcomeads\PlayerDataStorage.class
+com\tinysx\welcomeads\event\InventoryListener$2.class
+com\tinysx\welcomeads\event\PlayerListener$1.class
+com\tinysx\welcomeads\InventoryStorage.class
