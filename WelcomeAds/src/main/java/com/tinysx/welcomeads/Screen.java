@@ -29,6 +29,8 @@ import com.tinysx.welcomeads.utils.HeadsUtil;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public final class Screen {
@@ -85,8 +87,10 @@ public final class Screen {
             this.backgroundFadein = welcomeads.getConfig().getInt("global-background.fadein");
         }
 
-        this.title = ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player,
-                "&f" + this.background + "&f" + config.loadInventory().getString("inventory." + this.index + ".title")));
+        this.title = LegacyComponentSerializer.legacySection()
+                .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player,
+                        "&f" + this.background + "&f"
+                                + config.loadInventory().getString("inventory." + this.index + ".title"))));
         this.itemsection = config.loadInventory().getConfigurationSection("inventory." + this.index + ".items");
         this.holder = new WelcomeInventoryHolder(this);
         this.screenInventory = Bukkit.createInventory(this.holder, 54, this.title);
@@ -181,13 +185,13 @@ public final class Screen {
             return item;
         }
 
-        meta.setDisplayName(PlaceholderAPI.setPlaceholders(player,
-                ChatColor.translateAlternateColorCodes('&', itemName)));
-
+        itemName = LegacyComponentSerializer.legacySection()
+                .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, itemName)));
+        meta.setDisplayName(itemName);
         List<String> processedLore = new ArrayList<>(itemLore.size());
         for (String line : itemLore) {
-            processedLore.add(PlaceholderAPI.setPlaceholders(player,
-                    ChatColor.translateAlternateColorCodes('&', line)));
+            processedLore.add(LegacyComponentSerializer.legacySection()
+                    .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, line))));
         }
         meta.setLore(processedLore);
 

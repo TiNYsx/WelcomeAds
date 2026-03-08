@@ -5,6 +5,10 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 public final class CommandConverter {
 
     public static void runStringListCommands(List<String> unConvertedString, Player player) {
@@ -30,7 +34,8 @@ public final class CommandConverter {
             player.playSound(player, sound, 1.0f, 1.0f);
         } else if (key.contains("[message]")) {
             String message = key.replace("[message]", "");
-            player.sendMessage(message);
+            player.sendMessage(LegacyComponentSerializer.legacySection()
+                    .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message))));
         }
     }
 }

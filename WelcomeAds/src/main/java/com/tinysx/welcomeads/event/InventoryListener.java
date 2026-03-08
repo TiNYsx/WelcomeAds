@@ -23,6 +23,8 @@ import com.tinysx.welcomeads.utils.CommandConverter;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class InventoryListener implements Listener {
@@ -72,23 +74,30 @@ public class InventoryListener implements Listener {
 
         player.sendTitle(
                 ChatColor.translateAlternateColorCodes('&',
-                        PlaceholderAPI.setPlaceholders(player,
-                                screen.getBackground() != null ? screen.getBackground() : "")),
+                        LegacyComponentSerializer.legacySection().serialize(
+                                MiniMessage.miniMessage().deserialize(
+                                        PlaceholderAPI.setPlaceholders(player,
+                                                screen.getBackground() != null ? screen.getBackground() : "")))),
                 "", 0, 20, 20);
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (player.getOpenInventory().getTopInventory().getHolder() instanceof WelcomeInventoryHolder == false) {
+                if (player.getOpenInventory().getTopInventory()
+                        .getHolder() instanceof WelcomeInventoryHolder == false) {
                     if (config.loadInventory().getBoolean("inventory." + index + ".force") == true) {
                         player.closeInventory();
                         new Screen(container, containerIndex, player).openTo(player);
                     } else {
                         player.sendTitle(
-                                ChatColor.translateAlternateColorCodes('&',
-                                        PlaceholderAPI.setPlaceholders(player,
-                                                screen.getBackground() != null ? screen.getBackground() : "")),
-                                "", screen.getBackgroundFadein(), screen.getBackgroundStay(), screen.getBackgroundFadeout());
+                                ChatColor.translateAlternateColorCodes(
+                                        '&', LegacyComponentSerializer.legacySection().serialize(
+                                                MiniMessage.miniMessage().deserialize(
+                                                        PlaceholderAPI.setPlaceholders(player,
+                                                                screen.getBackground() != null ? screen.getBackground()
+                                                                        : "")))),
+                                "", screen.getBackgroundFadein(), screen.getBackgroundStay(),
+                                screen.getBackgroundFadeout());
 
                         if (InventoryStorage.isHaveInventoryStorage(player)) {
                             InventoryStorage.getInventoryStorage(player).unloadInventoryStorage();
@@ -123,11 +132,14 @@ public class InventoryListener implements Listener {
 
         player.sendTitle(
                 ChatColor.translateAlternateColorCodes('&',
-                        PlaceholderAPI.setPlaceholders(player,
-                                screen.getBackground() != null ? screen.getBackground() : "")),
+                        LegacyComponentSerializer.legacySection().serialize(
+                                MiniMessage.miniMessage().deserialize(
+                                        PlaceholderAPI.setPlaceholders(player,
+                                                screen.getBackground() != null ? screen.getBackground() : "")))),
                 "", screen.getBackgroundFadein(), screen.getBackgroundStay(), screen.getBackgroundFadeout());
 
-        List<String> cmds = config.loadInventory().getStringList("inventory." + index + ".events.onInventoryOpen.commands");
+        List<String> cmds = config.loadInventory()
+                .getStringList("inventory." + index + ".events.onInventoryOpen.commands");
         if (!cmds.isEmpty()) {
             CommandConverter.runStringListCommands(cmds, player);
         }
@@ -142,20 +154,24 @@ public class InventoryListener implements Listener {
                         cancel();
                     } else {
                         event.getPlayer().closeInventory();
-                        new Screen(container, (containerIndex + 1), (Player) event.getPlayer()).openTo((Player) event.getPlayer());
+                        new Screen(container, (containerIndex + 1), (Player) event.getPlayer())
+                                .openTo((Player) event.getPlayer());
                     }
                 }
             }.runTaskTimer(this.welcomeads, delay, delay);
-        } else if (containerIndex == config.loadContainer().getStringList("container." + container + ".inventory").size() - 1) {
+        } else if (containerIndex == config.loadContainer().getStringList("container." + container + ".inventory")
+                .size() - 1) {
             if (config.loadContainer().getBoolean("container." + container + ".loop")) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView().getTopInventory()) {
+                        if (event.getPlayer().getOpenInventory().getTopInventory() != event.getView()
+                                .getTopInventory()) {
                             cancel();
                         } else {
                             event.getPlayer().closeInventory();
-                            new Screen(container, (containerIndex + 1), (Player) event.getPlayer()).openTo((Player) event.getPlayer());
+                            new Screen(container, (containerIndex + 1), (Player) event.getPlayer())
+                                    .openTo((Player) event.getPlayer());
                         }
                     }
                 }.runTaskTimer(this.welcomeads, delay, delay);
@@ -178,7 +194,8 @@ public class InventoryListener implements Listener {
                 if ((isWelcomeAds != null && isWelcomeAds == true) && (adsId != null)) {
                     int slotIndex = event.getSlot();
                     String foundIndex = null;
-                    ConfigurationSection itemsConfig = config.loadInventory().getConfigurationSection("inventory." + adsId + ".items");
+                    ConfigurationSection itemsConfig = config.loadInventory()
+                            .getConfigurationSection("inventory." + adsId + ".items");
                     if (itemsConfig != null) {
                         for (String key : itemsConfig.getKeys(false)) {
                             if (itemsConfig.getInt(key + ".slot") == slotIndex) {
@@ -187,7 +204,8 @@ public class InventoryListener implements Listener {
                         }
                         if (foundIndex != null) {
                             event.setCancelled(true);
-                            List<String> cmds = config.loadInventory().getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
+                            List<String> cmds = config.loadInventory()
+                                    .getStringList("inventory." + adsId + ".items." + foundIndex + ".commands");
                             Player player = (Player) event.getWhoClicked();
                             if (!cmds.isEmpty()) {
                                 CommandConverter.runStringListCommands(cmds, player);

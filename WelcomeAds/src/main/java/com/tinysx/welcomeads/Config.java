@@ -7,6 +7,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
+import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public final class Config {
@@ -39,6 +42,7 @@ public final class Config {
         if (value == null) {
             return "§7[§c!§7] §cThe lang config for " + path + " is not set, please config this in lang.yml file.";
         }
+        value = LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(value));
         return ChatColor.translateAlternateColorCodes('&', value);
     }
 
@@ -81,7 +85,8 @@ public final class Config {
             this.plugin.saveResource("inventory.yml", false);
             this.inventoryConfig = YamlConfiguration.loadConfiguration(this.inventory);
             if (this.inventoryConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, "Inventory file does not exist: {0}", this.inventory.getAbsolutePath());
+                plugin.getLogger().log(Level.SEVERE, "Inventory file does not exist: {0}",
+                        this.inventory.getAbsolutePath());
             }
         }
     }
@@ -94,7 +99,8 @@ public final class Config {
             this.plugin.saveResource("container.yml", false);
             this.containerConfig = YamlConfiguration.loadConfiguration(this.container);
             if (this.containerConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, "Container file does not exist: {0}", this.container.getAbsolutePath());
+                plugin.getLogger().log(Level.SEVERE, "Container file does not exist: {0}",
+                        this.container.getAbsolutePath());
             }
         }
     }
