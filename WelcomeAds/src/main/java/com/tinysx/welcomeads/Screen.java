@@ -93,7 +93,7 @@ public final class Screen {
                                 + config.loadInventory().getString("inventory." + this.index + ".title"))));
         this.itemsection = config.loadInventory().getConfigurationSection("inventory." + this.index + ".items");
         this.holder = new WelcomeInventoryHolder(this);
-        this.screenInventory = Bukkit.createInventory(this.holder, 54, this.title);
+        this.screenInventory = Bukkit.createInventory(this.holder, 54, ChatColor.translateAlternateColorCodes('&', this.title));
 
         preloadItems(player);
     }
@@ -187,11 +187,11 @@ public final class Screen {
 
         itemName = LegacyComponentSerializer.legacySection()
                 .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, itemName)));
-        meta.setDisplayName(itemName);
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', itemName));
         List<String> processedLore = new ArrayList<>(itemLore.size());
         for (String line : itemLore) {
-            processedLore.add(LegacyComponentSerializer.legacySection()
-                    .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, line))));
+            processedLore.add(ChatColor.translateAlternateColorCodes('&', LegacyComponentSerializer.legacySection()
+                    .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, line)))));
         }
         meta.setLore(processedLore);
 
