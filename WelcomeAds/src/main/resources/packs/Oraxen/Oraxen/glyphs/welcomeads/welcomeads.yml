@@ -1,0 +1,42 @@
+welcomeads_shift_48:
+  texture: welcomeads/shift
+  ascent: -32768
+  height: 100
+  permission: welcomeads.font
+  char: ꐠ
+welcomeads_shift_l_1014:
+  texture: welcomeads/shift
+  ascent: -32768
+  height: -1015
+  permission: welcomeads.font
+  char: ꐡ
+welcomeads_shift_l_1536:
+  texture: welcomeads/shift
+  ascent: -32768
+  height: -1538
+  permission: welcomeads.font
+  char: ꐢ
+welcomeads_page_1:
+  texture: welcomeads/welcome_page_1
+  ascent: 7
+  height: 256
+  permission: welcomeads.font
+  char: ꐣ
+welcomeads_page_2:
+  texture: welcomeads/welcome_page_2
+  ascent: 7
+  height: 256
+  permission: welcomeads.font
+  char: ꐤ
+welcomeads_page_3:
+  texture: welcomeads/welcome_page_3
+  ascent: 7
+  height: 256
+  permission: welcomeads.font
+  char: ꐥ
+welcomeads_background:
+  texture: welcomeads/background
+  ascent: 256
+  height: 2500
+  permission: welcomeads.font
+  char: ꐦ

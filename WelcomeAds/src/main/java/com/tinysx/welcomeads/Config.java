@@ -1,26 +1,29 @@
 package com.tinysx.welcomeads;
 
 import java.io.File;
-import java.util.logging.Level;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
+import com.tinysx.welcomeads.utils.ColorUtil;
 
 public final class Config {
 
-    private File lang;
+    private final Plugin plugin;
+    private final Map<String, String> rawLangCache = new HashMap<>();
+
+    private File langFile;
     private YamlConfiguration langConfig;
-    private File inventory;
+
+    private File inventoryFile;
     private YamlConfiguration inventoryConfig;
-    private File container;
+
+    private File containerFile;
     private YamlConfiguration containerConfig;
-    private Plugin plugin;
 
     public Config(Plugin plugin) {
         this.plugin = plugin;
@@ -35,15 +38,15 @@ public final class Config {
     }
 
     public String loadLang(String path) {
-        if (langConfig == null) {
-            reload();
+        return loadLang(path, null);
+    }
+
+    public String loadLang(String path, Player player) {
+        String raw = rawLangCache.get(path);
+        if (raw == null) {
+            return "§7[§c!§7] §cMissing language key: " + path;
         }
-        String value = langConfig.getString(path, "Config not found " + path);
-        if (value == null) {
-            return "§7[§c!§7] §cThe lang config for " + path + " is not set, please config this in lang.yml file.";
-        }
-        value = LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(value));
-        return ChatColor.translateAlternateColorCodes('&', value);
+        return ColorUtil.format(player, raw);
     }
 
     public FileConfiguration loadConfig() {
@@ -65,43 +68,34 @@ public final class Config {
     }
 
     public void reloadLang() {
-        this.lang = new File(plugin.getDataFolder(), "lang.yml");
-        if (this.lang.exists()) {
-            this.langConfig = YamlConfiguration.loadConfiguration(this.lang);
-        } else {
+        this.langFile = new File(plugin.getDataFolder(), "lang.yml");
+        if (!this.langFile.exists()) {
             this.plugin.saveResource("lang.yml", false);
-            this.langConfig = YamlConfiguration.loadConfiguration(this.lang);
-            if (this.langConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, "Language file does not exist: {0}", this.lang.getAbsolutePath());
+        }
+        this.langConfig = YamlConfiguration.loadConfiguration(this.langFile);
+
+        rawLangCache.clear();
+        for (String key : this.langConfig.getKeys(false)) {
+            String val = this.langConfig.getString(key);
+            if (val != null) {
+                rawLangCache.put(key, val);
             }
         }
     }
 
     public void reloadInventory() {
-        this.inventory = new File(plugin.getDataFolder(), "inventory.yml");
-        if (this.inventory.exists()) {
-            this.inventoryConfig = YamlConfiguration.loadConfiguration(this.inventory);
-        } else {
+        this.inventoryFile = new File(plugin.getDataFolder(), "inventory.yml");
+        if (!this.inventoryFile.exists()) {
             this.plugin.saveResource("inventory.yml", false);
-            this.inventoryConfig = YamlConfiguration.loadConfiguration(this.inventory);
-            if (this.inventoryConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, "Inventory file does not exist: {0}",
-                        this.inventory.getAbsolutePath());
-            }
         }
+        this.inventoryConfig = YamlConfiguration.loadConfiguration(this.inventoryFile);
     }
 
     public void reloadContainer() {
-        this.container = new File(plugin.getDataFolder(), "container.yml");
-        if (this.container.exists()) {
-            this.containerConfig = YamlConfiguration.loadConfiguration(this.container);
-        } else {
+        this.containerFile = new File(plugin.getDataFolder(), "container.yml");
+        if (!this.containerFile.exists()) {
             this.plugin.saveResource("container.yml", false);
-            this.containerConfig = YamlConfiguration.loadConfiguration(this.container);
-            if (this.containerConfig == null) {
-                plugin.getLogger().log(Level.SEVERE, "Container file does not exist: {0}",
-                        this.container.getAbsolutePath());
-            }
         }
+        this.containerConfig = YamlConfiguration.loadConfiguration(this.containerFile);
     }
 }

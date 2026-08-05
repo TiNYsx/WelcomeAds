@@ -3,40 +3,53 @@ package com.tinysx.welcomeads.utils;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-
-import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public final class CommandConverter {
 
-    public static void runStringListCommands(List<String> unConvertedString, Player player) {
-        for (String key : unConvertedString) {
-            runStringCommand(key, player);
+    private CommandConverter() {
+    }
+
+    public static void runStringListCommands(List<String> commands, Player player) {
+        if (commands == null || commands.isEmpty() || player == null) {
+            return;
+        }
+        for (String command : commands) {
+            runStringCommand(command, player);
         }
     }
 
-    public static void runStringCommand(String unConvertedString, Player player) {
-        String key = unConvertedString.replace("<player>", player.getName());
-        if (key.contains("[console]")) {
-            String cmdValue = key.replace("[console]", "");
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), cmdValue);
-        } else if (key.contains("[player]")) {
-            String cmdValue = key.replace("[player]", "");
-            player.chat("/" + cmdValue);
-        } else if (key.contains("[close]")) {
+    public static void runStringCommand(String rawCommand, Player player) {
+        if (rawCommand == null || rawCommand.trim().isEmpty() || player == null) {
+            return;
+        }
+
+        String command = rawCommand.replace("<player>", player.getName());
+
+        if (command.startsWith("[console]")) {
+            String cmd = command.substring("[console]".length()).trim();
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        } else if (command.startsWith("[player]")) {
+            String cmd = command.substring("[player]".length()).trim();
+            if (cmd.startsWith("/")) {
+                cmd = cmd.substring(1);
+            }
+            player.performCommand(cmd);
+        } else if (command.equalsIgnoreCase("[close]")) {
             player.closeInventory();
-        } else if (key.contains("[sound]")) {
-            String sound = key.replace("[sound]", "");
-            sound = sound.replace(player.getName().toString(), "");
-            sound = sound.replace(" ", "");
-            player.playSound(player, sound, 1.0f, 1.0f);
-        } else if (key.contains("[message]")) {
-            String message = key.replace("[message]", "");
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', LegacyComponentSerializer.legacySection()
-                    .serialize(MiniMessage.miniMessage().deserialize(PlaceholderAPI.setPlaceholders(player, message)))));
+        } else if (command.startsWith("[sound]")) {
+            String soundName = command.substring("[sound]".length()).trim();
+            try {
+                Sound sound = Sound.valueOf(soundName.toUpperCase());
+                player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+            } catch (IllegalArgumentException ignored) {
+                // Fallback for custom resource pack sounds or lower-case keys
+                player.playSound(player.getLocation(), soundName.toLowerCase(), 1.0f, 1.0f);
+            }
+        } else if (command.startsWith("[message]")) {
+            String message = command.substring("[message]".length()).trim();
+            player.sendMessage(ColorUtil.format(player, message));
         }
     }
 }

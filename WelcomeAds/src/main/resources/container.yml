@@ -1,6 +1,6 @@
 container:
   welcome-1:
-    permission: "welcomeads.open.welcome1"
+    permission: "default"
     delay: 100
     loop: true
     inventory:
@@ -8,13 +8,13 @@ container:
       - "welcome2"
       - "welcome3"
   welcome-2:
-    permission: "welcomeads.open.welcome2"
+    permission: "default"
     delay: 100
     loop: false
     inventory:
       - "welcome3"
   welcome-3:
-    permission: "welcomeads.open.welcome3"
+    permission: "default"
     delay: 100
     loop: false
     inventory:

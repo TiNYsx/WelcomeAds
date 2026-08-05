@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -15,29 +17,55 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class HeadsUtil {
+public final class HeadsUtil {
 
-    private static final Map<String, ItemStack> headCache = new HashMap<>();
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    private static final int MAX_CACHE_SIZE = 500;
+    private static final Map<String, ItemStack> HEAD_CACHE = Collections.synchronizedMap(
+            new LinkedHashMap<String, ItemStack>(MAX_CACHE_SIZE, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, ItemStack> eldest) {
+                    return size() > MAX_CACHE_SIZE;
+                }
+            }
+    );
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(3))
+            .build();
+
+    private HeadsUtil() {
+    }
 
     public static void getPlayerHead(String username, Consumer<ItemStack> callback) {
-
-        if (headCache.containsKey(username)) {
-            callback.accept(headCache.get(username).clone());
+        if (username == null || username.isEmpty()) {
+            callback.accept(createDefaultHead());
             return;
+        }
+
+        String lowerUser = username.toLowerCase();
+        synchronized (HEAD_CACHE) {
+            if (HEAD_CACHE.containsKey(lowerUser)) {
+                callback.accept(HEAD_CACHE.get(lowerUser).clone());
+                return;
+            }
         }
 
         fetchTextureFromMojangAPI(username).thenAccept(texture -> {
             if (texture != null) {
-                callback.accept(createHeadWithTexture(texture, username));
+                ItemStack head = createHeadWithTexture(texture, username);
+                HEAD_CACHE.put(lowerUser, head);
+                callback.accept(head.clone());
             } else {
                 fetchTextureFromCraftHead(username).thenAccept(craftTexture -> {
                     if (craftTexture != null) {
-                        callback.accept(createHeadWithTexture(craftTexture, username));
+                        ItemStack head = createHeadWithTexture(craftTexture, username);
+                        HEAD_CACHE.put(lowerUser, head);
+                        callback.accept(head.clone());
                     } else {
                         callback.accept(createDefaultHead());
                     }
@@ -51,7 +79,7 @@ public class HeadsUtil {
             try {
                 HttpRequest uuidRequest = HttpRequest.newBuilder()
                         .uri(URI.create("https://api.mojang.com/users/profiles/minecraft/" + username))
-                        .timeout(java.time.Duration.ofSeconds(3))
+                        .timeout(Duration.ofSeconds(3))
                         .build();
 
                 HttpResponse<String> uuidResponse = HTTP_CLIENT.send(uuidRequest, HttpResponse.BodyHandlers.ofString());
@@ -64,7 +92,7 @@ public class HeadsUtil {
 
                 HttpRequest textureRequest = HttpRequest.newBuilder()
                         .uri(URI.create("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid))
-                        .timeout(java.time.Duration.ofSeconds(3))
+                        .timeout(Duration.ofSeconds(3))
                         .build();
 
                 HttpResponse<String> textureResponse = HTTP_CLIENT.send(textureRequest,
@@ -88,7 +116,7 @@ public class HeadsUtil {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("https://crafthead.net/profile/" + username))
-                        .timeout(java.time.Duration.ofSeconds(3))
+                        .timeout(Duration.ofSeconds(3))
                         .build();
 
                 HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
@@ -110,28 +138,24 @@ public class HeadsUtil {
         try {
             ItemStack head = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) head.getItemMeta();
-
-            try {
-                org.bukkit.profile.PlayerProfile profile = Bukkit.createPlayerProfile(username);
-                profile.getTextures().setSkin(getSkinUrlFromTexture(texture).toURL());
-                meta.setOwnerProfile(profile);
-            } catch (Exception e) {
-                meta.setOwningPlayer(Bukkit.getOfflinePlayer(username));
+            if (meta != null) {
+                try {
+                    PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), username);
+                    profile.getTextures().setSkin(getSkinUrlFromTexture(texture).toURL());
+                    meta.setOwnerProfile(profile);
+                } catch (Exception e) {
+                    meta.setOwningPlayer(Bukkit.getOfflinePlayer(username));
+                }
+                head.setItemMeta(meta);
             }
-
-            head.setItemMeta(meta);
             return head;
         } catch (Exception e) {
             return createDefaultHead();
         }
     }
 
-    private static ItemStack createDefaultHead() {
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-        meta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.randomUUID()));
-        head.setItemMeta(meta);
-        return head;
+    public static ItemStack createDefaultHead() {
+        return new ItemStack(Material.PLAYER_HEAD);
     }
 
     private static URI getSkinUrlFromTexture(String texture) {

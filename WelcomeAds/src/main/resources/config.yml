@@ -10,6 +10,10 @@ loadtype: "onjoin"
 # setting this to `true` will show the welcomeads to the player only once per server session.
 persession: true
 
+# setting this to `true` will temporarily hide the player's inventory items while the welcomeads GUI is open,
+# providing a 100% clean visual screen without any floating items. All items are safely protected and restored on close.
+hide-player-inventory: true
+
 # the permission to give access to `welcomeads reload` command, normally give this to admin/owner role.
 permission: "welcomeads.reload"
 
