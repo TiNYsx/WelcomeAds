@@ -110,6 +110,9 @@
                 <filtering>false</filtering>
                 <excludes>
                     <exclude>*.yml</exclude>
+                    <exclude>**/.assetCache/**</exclude>
+                    <exclude>**/.deobfCachedPacks/**</exclude>
+                    <exclude>**/.*</exclude>
                 </excludes>
             </resource>
         </resources>
