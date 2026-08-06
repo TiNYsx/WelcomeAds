@@ -11,6 +11,7 @@
 Supported and designed for seamless integration with custom resource packs and custom GUI glyphs.
 
 <p align="center">
+  (Demo)
   <img src="assets/demo.gif" alt="WelcomeAds Showcase Demo" width="100%">
 </p>
 
