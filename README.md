@@ -10,7 +10,7 @@
 
 Supported and designed for seamless integration with custom resource packs and custom GUI glyphs.
 
-[![Demo](demo.mp4)]
+[![demo](demo.mp4)]
 
 ---
 
