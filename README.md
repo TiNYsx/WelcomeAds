@@ -9,6 +9,7 @@
 **WelcomeAds** is a modern, lightweight Minecraft server plugin designed to display customizable, high-impact welcome screens, announcements, server rules, and interactive promotional menus upon player join or resource pack load.
 
 Supported and designed for seamless integration with custom resource packs and custom GUI glyphs.
+
 <p align="center">
   <video src="https://raw.githubusercontent.com/TiNYsx/WelcomeAds/main/assets/demo.mp4" controls="controls" width="100%"></video>
 </p>
