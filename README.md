@@ -13,6 +13,9 @@ Supported and designed for seamless integration with custom resource packs and c
 <p align="center">
   <video src="https://raw.githubusercontent.com/TiNYsx/WelcomeAds/main/assets/demo.mp4" controls="controls" width="100%"></video>
 </p>
+
+[![Demo](assets/demo.mp4)]
+
 ---
 
 ## 📜 License
