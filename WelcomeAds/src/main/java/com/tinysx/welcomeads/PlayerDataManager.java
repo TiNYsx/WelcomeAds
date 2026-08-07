@@ -66,6 +66,14 @@ public final class PlayerDataManager {
         return DATA_MAP.containsKey(player.getUniqueId());
     }
 
+    public static void handleDisconnect(UUID uuid) {
+        PlayerSessionData data = DATA_MAP.get(uuid);
+        if (data != null) {
+            data.cancelTransitionTask();
+            data.setJoined(false);
+        }
+    }
+
     public static void remove(UUID uuid) {
         PlayerSessionData data = DATA_MAP.remove(uuid);
         if (data != null) {

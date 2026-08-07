@@ -23,13 +23,13 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         // Restore inventory immediately before player leaves and data is saved to world
         SafeInventoryManager.restorePlayerInventory(event.getPlayer());
-        PlayerDataManager.remove(event.getPlayer().getUniqueId());
+        PlayerDataManager.handleDisconnect(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerKick(PlayerKickEvent event) {
         SafeInventoryManager.restorePlayerInventory(event.getPlayer());
-        PlayerDataManager.remove(event.getPlayer().getUniqueId());
+        PlayerDataManager.handleDisconnect(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -45,6 +45,10 @@ public class PlayerListener implements Listener {
         String loadType = welcomeads.getConfig().getString("loadtype", "onjoin");
         boolean perSession = welcomeads.getConfig().getBoolean("persession", true);
         String page = welcomeads.getConfig().getString("joinpage", "welcome-1");
+
+        if (!perSession) {
+            session.setSeen(false);
+        }
 
         if (loadType.equalsIgnoreCase("onjoin") || loadType.equalsIgnoreCase("both")) {
             if (perSession && session.isSeen()) {
