@@ -24,7 +24,7 @@ This project is licensed under the **WelcomeAds Custom License**.
 - **You may** download, use, and share this plugin for free.
 - **You may not** resell, redistribute, or modify and distribute this plugin.
 - **You are allowed** to sell packs or products that depend on this plugin, provided the plugin itself is **not included** and users are directed to download it from the official GitHub repository.
-- **Attribution is required** for using this plugin in your product or documentation (Credit to **TiNYsx** / **Nokhongyok**).
+- **Attribution is required** for using this plugin in your product or documentation (Credit to **TiNYsx**).
 
 For full details, refer to the [LICENSE](LICENSE) file.
 
