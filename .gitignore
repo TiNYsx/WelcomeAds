@@ -20,4 +20,5 @@ Desktop.ini
 .DS_Store
 
 # Others
-ItemsAdder/
+/ItemsAdder/
+/.vscode/
