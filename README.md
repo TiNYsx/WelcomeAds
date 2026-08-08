@@ -46,7 +46,7 @@ For full details, refer to the [LICENSE](LICENSE) file.
 
 - **🎨 Multi-Plugin Resource Pack Support**:
   - Native compatibility with **ItemsAdder**, **Oraxen**, and **NexO** font images / emojis.
-  - Supports negative space offsets (`%img_offset%` / `%img_shift%`) and full-screen title backgrounds.
+  - Supports negative space offsets (`%img_offset%` / `<shift:number>`) and full-screen title backgrounds.
 
 - **⚡ PlaceholderAPI Integration**:
   - Full support for dynamic player placeholders, stats, and variables across titles and item descriptions.
@@ -126,6 +126,6 @@ Contributions and feedback are welcome! Please submit a pull request or open an 
 ---
 
 ## 💬 Support & Contact
-- **Developer:** **TiNYsx** (*Nokhongyok*)
+- **Developer:** **TiNYsx**
 - **Discord:** `tiny.tinysx`
 - **Discord Support Server:** [Join Discord](https://discord.gg/JMdjgnzG8W)
