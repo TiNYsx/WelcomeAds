@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -273,6 +274,10 @@ public final class Screen {
     }
 
     public void openTo(Player player) {
+        FileConfiguration cfg = WelcomeAds.getInstance().getConfig();
+        if (cfg.getBoolean("prefix-exempt-players", false) && player.getName().startsWith(cfg.getString("floodgate-prefix", "."))) {
+            return;
+        }
         if (this.itemsection == null) {
             player.sendMessage(config.loadLang("screen-config-none", player).replace("<index>", this.index));
             return;
