@@ -10,6 +10,11 @@ loadtype: "onjoin"
 # setting this to `true` will show the welcomeads to the player only once per server session.
 persession: true
 
+# Set to true to make players whose username start with a certain prefix, usually floodgate/geyser bedrock players, skip the welcomeads screen.
+prefix-exempt-players: false
+# The prefix that will trigger skipping the welcomeads screen.
+floodgate-prefix: "."
+
 # setting this to `true` will temporarily hide the player's inventory items while the welcomeads GUI is open,
 # providing a 100% clean visual screen without any floating items. All items are safely protected and restored on close.
 hide-player-inventory: true
